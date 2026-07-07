@@ -1,0 +1,65 @@
+<h2>三阶段时间轴：等待期的语义？</h2>
+<p class="subtitle">请确认每个阶段的起止点与所用利率/通胀</p>
+
+<style>
+.timeline { display: flex; margin: 30px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.phase { padding: 20px 16px; flex: 1; color: #fff; position: relative; }
+.phase.accum { background: #2e7d32; flex: 2.5; }
+.phase.wait  { background: #ef6c00; flex: 0.8; }
+.phase.decum { background: #1565c0; flex: 2; }
+.phase h4 { margin: 0 0 8px 0; font-size: 14px; letter-spacing: 0.5px; opacity: 0.9; }
+.phase .age { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.phase .body { font-size: 13px; line-height: 1.5; opacity: 0.95; }
+.phase .rates { margin-top: 10px; font-size: 12px; background: rgba(255,255,255,0.18); padding: 6px 8px; border-radius: 4px; }
+.qbox { margin-top: 24px; padding: 16px 20px; background: #fffde7; border-left: 4px solid #f9a825; border-radius: 4px; }
+.qbox p { margin: 4px 0; }
+</style>
+
+<div class="timeline">
+  <div class="phase accum">
+    <h4>① ACCUMULATION（退休前累积期）</h4>
+    <div class="age">现年 → 退休年龄</div>
+    <div class="body">在职、月供入退休账户，资金按 pre-retirement return 复利增长；目标月开销按 pre-retirement inflation 上涨</div>
+    <div class="rates">📈 pre return &nbsp;·&nbsp; 📊 pre inflation</div>
+  </div>
+  <div class="phase wait">
+    <h4>② WAITING（等待期）</h4>
+    <div class="age">退休年龄 → 开始提取</div>
+    <div class="body">已退休但暂不提取，资金继续增长。常见于客户希望让本金多滚几年再领</div>
+    <div class="rates">❓ 用哪一组利率/通胀？</div>
+  </div>
+  <div class="phase decum">
+    <h4>③ DECUMULATION（取款期）</h4>
+    <div class="age">开始提取 → 终老</div>
+    <div class="body">每月/每年提取资金作生活费；资金按 post return 增长，开销按 post inflation 上涨</div>
+    <div class="rates">📈 post return &nbsp;·&nbsp; 📊 post inflation</div>
+  </div>
+</div>
+
+<div class="qbox">
+  <p><strong>请确认：等待期阶段的资金行为？</strong></p>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>沿用 pre-retirement 利率与通胀</h3>
+      <p>等待期视为「累积期的延长」——人虽然退休了，但钱还在原有投资组合里继续按 pre return 增长，没有人为切换</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>沿用 post-retirement 利率与通胀</h3>
+      <p>等待期视为「取款期的前置」——客户在退休时点就已经把组合切到更保守，只是先不取钱让它滚利</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>等待期单独设第三组利率/通胀</h3>
+      <p>给顾问最大灵活度——可以模拟「过渡期」介于 pre/post 之间的稳健组合，但 UI 上要多两个输入框</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,208 @@
+<h2>设计 § 4 · Step 3 · 结果与策略对比</h2>
+<p class="subtitle">所需 lump sum → 每月需储蓄 → 两种取款策略 side-by-side</p>
+
+<style>
+.wf3 { background: #f7f9fc; border-radius: 8px; padding: 24px; max-width: 880px; margin: 0 auto; }
+.wf3 .topbar { background: #1565c0; color: #fff; padding: 12px 18px; border-radius: 6px; margin-bottom: 18px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.stepper { display: flex; gap: 6px; }
+.stepper .dot { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.25); color: #fff; text-align: center; line-height: 26px; font-size: 12px; font-weight: 700; }
+.stepper .dot.active { background: #fff; color: #1565c0; }
+.stepper .dot.done { background: #4caf50; color: #fff; }
+
+.kpi-row { display: flex; gap: 12px; margin-bottom: 18px; }
+.kpi { flex: 1; background: #fff; border-radius: 8px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-top: 4px solid #1565c0; }
+.kpi.alert { border-top-color: #ef6c00; }
+.kpi-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; margin-bottom: 6px; }
+.kpi-num { font-size: 22px; font-weight: 700; color: #1565c0; }
+.kpi.alert .kpi-num { color: #ef6c00; }
+.kpi-sub { font-size: 11px; color: #888; margin-top: 4px; }
+
+.section-card { background: #fff; border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.section-title-2 { font-size: 13px; color: #333; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #e3f2fd; }
+
+.chart-asset { height: 180px; background: linear-gradient(to bottom, #fff 0%, #f5f9ff 100%); border: 1px dashed #c5d8ec; border-radius: 4px; position: relative; padding: 12px; }
+.chart-asset .axisX { position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: #999; }
+.chart-asset .phase-band { position: absolute; bottom: 0; height: 22px; font-size: 9px; text-align: center; line-height: 22px; color: #fff; font-weight: 600; }
+.chart-asset .pb-pre { left: 0; width: 45%; background: #2e7d32; }
+.chart-asset .pb-wait { left: 45%; width: 12%; background: #ef6c00; }
+.chart-asset .pb-post { left: 57%; width: 43%; background: #1565c0; }
+.chart-asset .line { position: absolute; bottom: 22px; left: 0; height: 130px; width: 100%; }
+.chart-asset svg { width: 100%; height: 100%; }
+
+.strategy-row { display: flex; gap: 14px; }
+.strategy-col { flex: 1; background: #fff; border-radius: 8px; padding: 16px; border-top: 5px solid #ccc; }
+.strategy-col.cp { border-top-color: #00897b; }
+.strategy-col.cd { border-top-color: #c62828; }
+.strategy-name { font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; margin-bottom: 4px; }
+.strategy-col.cp .strategy-name { color: #00695c; }
+.strategy-col.cd .strategy-name { color: #b71c1c; }
+.strategy-title { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 4px; }
+.strategy-desc { font-size: 11.5px; color: #666; line-height: 1.5; margin-bottom: 12px; }
+.strategy-input { background: #f5f7fa; padding: 8px 10px; border-radius: 4px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.strategy-input .lbl { color: #555; font-weight: 600; }
+.strategy-input .val { background: #fff; border: 1px solid #ccd; padding: 4px 10px; border-radius: 3px; font-weight: 700; min-width: 48px; text-align: right; }
+.strategy-result { padding: 8px 0; border-top: 1px solid #eee; font-size: 12px; }
+.strategy-result .rlabel { color: #666; }
+.strategy-result .rvalue { font-weight: 700; font-size: 15px; color: #222; }
+.strategy-col.cp .strategy-result .rvalue { color: #00695c; }
+.strategy-col.cd .strategy-result .rvalue { color: #b71c1c; }
+.strategy-result .rnote { font-size: 10.5px; color: #888; margin-top: 2px; font-style: italic; }
+
+.comparison-chart { height: 170px; background: #fafbfc; border: 1px dashed #ccc; border-radius: 4px; padding: 10px; position: relative; }
+.cc-legend { position: absolute; top: 10px; right: 14px; font-size: 11px; display: flex; gap: 16px; }
+.cc-legend span { display: flex; align-items: center; gap: 5px; }
+.cc-legend .swatch { width: 14px; height: 3px; border-radius: 2px; }
+
+.action-row { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding-top: 16px; border-top: 1px solid #ddd; }
+.action-row .btns { display: flex; gap: 10px; }
+.btn-s { padding: 8px 14px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-back { background: #f0f0f0; color: #555; }
+.btn-modify { background: #fff; border: 1px solid #1565c0; color: #1565c0; }
+.btn-print { background: #1565c0; color: #fff; }
+</style>
+
+<div class="wf3">
+  <div class="topbar">
+    <span>Retirement Planner · Results</span>
+    <div class="stepper">
+      <div class="dot done">✓</div>
+      <div class="dot done">✓</div>
+      <div class="dot active">3</div>
+    </div>
+  </div>
+
+  <!-- KPI ROW: Lump Sum + Monthly Savings + Years -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Lump sum needed @ start of decumulation</div>
+      <div class="kpi-num">S$1,847,000</div>
+      <div class="kpi-sub">即您客户 65 岁开始领取时需要的本金</div>
+    </div>
+    <div class="kpi alert">
+      <div class="kpi-label">Monthly savings required (from now)</div>
+      <div class="kpi-num">S$3,180</div>
+      <div class="kpi-sub">基于 5.0% pre-retirement 回报率</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Plan span</div>
+      <div class="kpi-num">35→60→65→90</div>
+      <div class="kpi-sub">25y pre · 5y wait · 25y post</div>
+    </div>
+  </div>
+
+  <!-- ASSET TIMELINE CHART -->
+  <div class="section-card">
+    <h4 class="section-title-2">📈 Asset Balance Timeline</h4>
+    <div class="chart-asset">
+      <svg viewBox="0 0 600 130" preserveAspectRatio="none">
+        <polyline points="0,130 50,120 100,108 150,92 200,72 270,50 320,20 360,5 420,40 500,90 580,130"
+          fill="none" stroke="#1565c0" stroke-width="2.5"/>
+      </svg>
+      <div class="phase-band pb-pre">Pre-retirement · accumulation</div>
+      <div class="phase-band pb-wait">Wait</div>
+      <div class="phase-band pb-post">Post · decumulation</div>
+    </div>
+    <p style="font-size:11px;color:#888;margin:8px 0 0 0">资产余额随时间变化：累积期上升 → 等待期继续上升 → 取款期下降（默认显示 Capital Drawdown 路径；下方 Strategy 区会展开对比）</p>
+  </div>
+
+  <!-- STRATEGY COMPARISON -->
+  <div class="section-card">
+    <h4 class="section-title-2">💼 Withdrawal Strategy Comparison</h4>
+    <p style="font-size:12px;color:#666;margin:0 0 14px 0">假设客户 65 岁时拥有 <strong>S$1,847,000</strong> lump sum，以下两种取款策略各有什么效果？</p>
+
+    <div class="strategy-row">
+      <!-- STRATEGY A: Capital Preservation -->
+      <div class="strategy-col cp">
+        <div class="strategy-name">Strategy A</div>
+        <div class="strategy-title">🌱 Capital Preservation</div>
+        <div class="strategy-desc">只取本金产生的股息/利息，本金永久保留——适合希望留遗产的客户</div>
+
+        <div class="strategy-input">
+          <span class="lbl">Yield rate</span>
+          <span class="val">4.0%</span>
+        </div>
+
+        <div class="strategy-result">
+          <div class="rlabel">Level monthly income</div>
+          <div class="rvalue">S$6,157 / month</div>
+          <div class="rnote">永远固定（名义额），不抗通胀</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">Capital at end of plan</div>
+          <div class="rvalue">S$1,847,000</div>
+          <div class="rnote">100% 保留，可留给后代</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">⚠ Real value year 25</div>
+          <div class="rvalue" style="color:#888;font-size:13px">≈ S$2,940 (today's $)</div>
+          <div class="rnote">通胀侵蚀购买力，约相当于今天的一半</div>
+        </div>
+      </div>
+
+      <!-- STRATEGY B: Capital Drawdown -->
+      <div class="strategy-col cd">
+        <div class="strategy-name">Strategy B</div>
+        <div class="strategy-title">💧 Capital Drawdown</div>
+        <div class="strategy-desc">本金逐年取用，每月取款额按通胀调整——保持购买力，本金最终耗尽</div>
+
+        <div class="strategy-input">
+          <span class="lbl">Initial withdrawal rate</span>
+          <span class="val">4.0%</span>
+        </div>
+
+        <div class="strategy-result">
+          <div class="rlabel">Initial monthly income</div>
+          <div class="rvalue">S$6,157 / month</div>
+          <div class="rnote">起步与 A 相同（匹配规划目标）</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">Final monthly income (year 25)</div>
+          <div class="rvalue">S$12,890 / month</div>
+          <div class="rnote">按 3% 通胀每年增长，保持购买力</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">⚠ Capital depleted at year</div>
+          <div class="rvalue">Year 25 (age 90)</div>
+          <div class="rnote">恰好用完 / 留 0 给后代</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARISON CHART -->
+    <div style="margin-top:16px">
+      <p class="rlabel" style="font-size:11px;color:#666;margin:0 0 6px 0;text-transform:uppercase;letter-spacing:0.3px;font-weight:600">📊 Capital balance over 25-year decumulation</p>
+      <div class="comparison-chart">
+        <div class="cc-legend">
+          <span><span class="swatch" style="background:#00897b"></span>CP (preserved)</span>
+          <span><span class="swatch" style="background:#c62828"></span>CD (depleting)</span>
+        </div>
+        <svg viewBox="0 0 600 140" preserveAspectRatio="none" style="width:100%;height:100%">
+          <!-- CP horizontal line -->
+          <line x1="20" y1="30" x2="580" y2="30" stroke="#00897b" stroke-width="2.5"/>
+          <!-- CD declining curve -->
+          <polyline points="20,30 80,38 150,52 220,68 290,84 360,100 430,114 500,125 580,135"
+            fill="none" stroke="#c62828" stroke-width="2.5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <div class="btn-s btn-back">← Back</div>
+    <div class="btns">
+      <div class="btn-s btn-modify">✎ 修改假设</div>
+      <div class="btn-s btn-print">🖨 打印 / PDF</div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:30px">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>Step 3 OK，继续看 § 5（计算公式与技术结构）</h3></div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content"><h3>需要调整</h3></div>
+  </div>
+</div>

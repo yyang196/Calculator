@@ -1,0 +1,198 @@
+<h2>设计 § 4 v2 · Step 3 · 增强后的策略对比</h2>
+<p class="subtitle">取款率可实时调整 + 两张对比图（余额 + 取款额）</p>
+
+<style>
+.wf3 { background: #f7f9fc; border-radius: 8px; padding: 20px; max-width: 900px; margin: 0 auto; }
+
+.section-card { background: #fff; border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.section-title-2 { font-size: 13px; color: #333; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid #e3f2fd; }
+
+/* RATE CONTROL BAR - new prominent area */
+.rate-controls { background: linear-gradient(90deg, #f0f7e6 0%, #fff 50%, #fce8e8 100%); border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; border: 1px solid #ddd; }
+.rate-controls-title { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 10px; }
+.rate-control-row { display: flex; gap: 18px; }
+.rate-control { flex: 1; background: #fff; border-radius: 6px; padding: 10px 12px; border-left: 4px solid #ccc; }
+.rate-control.cp { border-left-color: #00897b; }
+.rate-control.cd { border-left-color: #c62828; }
+.rate-control-label { font-size: 11px; color: #666; font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.rate-control-label .name { color: #333; font-weight: 700; font-size: 12px; }
+.rate-control.cp .rate-control-label .name { color: #00695c; }
+.rate-control.cd .rate-control-label .name { color: #b71c1c; }
+.rate-control-slider-row { display: flex; align-items: center; gap: 12px; }
+.rate-slider { flex: 1; height: 6px; background: linear-gradient(to right, #1565c0 40%, #ddd 40%); border-radius: 3px; position: relative; }
+.rate-slider.cp { background: linear-gradient(to right, #00897b 40%, #ddd 40%); }
+.rate-slider.cd { background: linear-gradient(to right, #c62828 40%, #ddd 40%); }
+.rate-slider .thumb { position: absolute; width: 16px; height: 16px; background: #fff; border: 2px solid #555; border-radius: 50%; left: 40%; top: -5px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.rate-slider.cp .thumb { border-color: #00897b; }
+.rate-slider.cd .thumb { border-color: #c62828; }
+.rate-value { background: #fff; border: 1px solid #ccd; padding: 4px 10px; border-radius: 4px; font-weight: 700; min-width: 56px; text-align: center; font-size: 13px; }
+.rate-value.cp { color: #00695c; border-color: #00897b; }
+.rate-value.cd { color: #b71c1c; border-color: #c62828; }
+
+/* Strategy result cards */
+.strategy-row { display: flex; gap: 14px; }
+.strategy-col { flex: 1; background: #fff; border-radius: 8px; padding: 16px; border-top: 5px solid #ccc; }
+.strategy-col.cp { border-top-color: #00897b; }
+.strategy-col.cd { border-top-color: #c62828; }
+.strategy-name { font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; margin-bottom: 4px; }
+.strategy-col.cp .strategy-name { color: #00695c; }
+.strategy-col.cd .strategy-name { color: #b71c1c; }
+.strategy-title { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 4px; }
+.strategy-desc { font-size: 11.5px; color: #666; line-height: 1.5; margin-bottom: 10px; }
+.strategy-result { padding: 8px 0; border-top: 1px solid #eee; font-size: 12px; }
+.strategy-result .rlabel { color: #666; }
+.strategy-result .rvalue { font-weight: 700; font-size: 15px; color: #222; }
+.strategy-col.cp .strategy-result .rvalue { color: #00695c; }
+.strategy-col.cd .strategy-result .rvalue { color: #b71c1c; }
+.strategy-result .rnote { font-size: 10.5px; color: #888; margin-top: 2px; font-style: italic; }
+
+/* Charts */
+.charts-row { display: flex; gap: 14px; margin-top: 14px; }
+.chart-box { flex: 1; background: #fff; border-radius: 8px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.chart-box-title { font-size: 12px; color: #333; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+.chart-area { height: 180px; background: #fafbfc; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; position: relative; }
+.chart-legend { position: absolute; top: 8px; right: 12px; font-size: 10.5px; display: flex; gap: 12px; }
+.chart-legend span { display: flex; align-items: center; gap: 4px; }
+.chart-legend .swatch { width: 14px; height: 3px; border-radius: 2px; }
+.chart-axis-y { font-size: 9.5px; color: #999; position: absolute; }
+.chart-area svg { width: 100%; height: 100%; }
+.chart-caption { font-size: 10.5px; color: #888; margin-top: 6px; font-style: italic; text-align: center; }
+
+.new-badge { display: inline-block; background: #f9a825; color: #fff; font-size: 9.5px; padding: 1.5px 6px; border-radius: 8px; margin-left: 6px; font-weight: 700; letter-spacing: 0.3px; vertical-align: middle; }
+</style>
+
+<div class="wf3">
+
+  <div class="section-card">
+    <h4 class="section-title-2">💼 Withdrawal Strategy Comparison</h4>
+    <p style="font-size:12px;color:#666;margin:0 0 10px 0">假设客户 65 岁时拥有 <strong>S$1,847,000</strong> lump sum，以下两种取款策略各有什么效果？</p>
+
+    <!-- NEW: Live-adjustable rate controls -->
+    <div class="rate-controls">
+      <div class="rate-controls-title">⚡ Live adjustable rates <span class="new-badge">NEW</span> — 拖动滑块观察下方结果与图表实时变化</div>
+      <div class="rate-control-row">
+        <div class="rate-control cp">
+          <div class="rate-control-label">
+            <span class="name">🌱 CP · Yield rate</span>
+            <span style="color:#888;font-size:10px">本金产生的股息率</span>
+          </div>
+          <div class="rate-control-slider-row">
+            <div class="rate-slider cp"><div class="thumb"></div></div>
+            <div class="rate-value cp">4.0%</div>
+          </div>
+        </div>
+        <div class="rate-control cd">
+          <div class="rate-control-label">
+            <span class="name">💧 CD · Initial withdrawal rate</span>
+            <span style="color:#888;font-size:10px">首年取款占本金比例</span>
+          </div>
+          <div class="rate-control-slider-row">
+            <div class="rate-slider cd"><div class="thumb"></div></div>
+            <div class="rate-value cd">4.0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strategy result columns -->
+    <div class="strategy-row">
+      <div class="strategy-col cp">
+        <div class="strategy-name">Strategy A</div>
+        <div class="strategy-title">🌱 Capital Preservation</div>
+        <div class="strategy-desc">只取本金产生的股息/利息，本金永久保留</div>
+        <div class="strategy-result">
+          <div class="rlabel">Level monthly income</div>
+          <div class="rvalue">S$6,157 / mo</div>
+          <div class="rnote">永远固定，不抗通胀</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">Real value @ year 25</div>
+          <div class="rvalue" style="font-size:13px;color:#888">≈ S$2,940 today's $</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">Capital at end</div>
+          <div class="rvalue">S$1,847,000 (100% preserved)</div>
+        </div>
+      </div>
+      <div class="strategy-col cd">
+        <div class="strategy-name">Strategy B</div>
+        <div class="strategy-title">💧 Capital Drawdown</div>
+        <div class="strategy-desc">本金逐年取用，月取款按通胀调整</div>
+        <div class="strategy-result">
+          <div class="rlabel">Initial monthly income</div>
+          <div class="rvalue">S$6,157 / mo</div>
+          <div class="rnote">起步与 A 相同（匹配规划目标）</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">Final monthly income (yr 25)</div>
+          <div class="rvalue">S$12,890 / mo</div>
+        </div>
+        <div class="strategy-result">
+          <div class="rlabel">Capital depleted at</div>
+          <div class="rvalue">Year 25 (age 90)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO CHARTS SIDE BY SIDE -->
+  <div class="charts-row">
+    <!-- CHART 1: Capital Balance -->
+    <div class="chart-box">
+      <div class="chart-box-title">📊 资产余额 Capital Balance（25 年）</div>
+      <div class="chart-area">
+        <div class="chart-legend">
+          <span><span class="swatch" style="background:#00897b"></span>CP</span>
+          <span><span class="swatch" style="background:#c62828"></span>CD</span>
+        </div>
+        <div class="chart-axis-y" style="top:14px;left:6px">$1.85M</div>
+        <div class="chart-axis-y" style="bottom:14px;left:6px">$0</div>
+        <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+          <line x1="20" y1="30" x2="390" y2="30" stroke="#00897b" stroke-width="2.5"/>
+          <polyline points="20,30 60,40 110,55 170,75 230,98 290,120 340,140 390,152"
+            fill="none" stroke="#c62828" stroke-width="2.5"/>
+          <line x1="20" y1="155" x2="390" y2="155" stroke="#ccc" stroke-width="0.5"/>
+        </svg>
+      </div>
+      <p class="chart-caption">CP 水平不动 · CD 逐年下滑直至耗尽</p>
+    </div>
+
+    <!-- CHART 2: NEW - Annual Withdrawal Amount -->
+    <div class="chart-box" style="background:linear-gradient(90deg,#fffbe6,#fff)">
+      <div class="chart-box-title">💰 每年取款额 Annual Withdrawal <span class="new-badge">NEW</span></div>
+      <div class="chart-area">
+        <div class="chart-legend">
+          <span><span class="swatch" style="background:#00897b"></span>CP (固定)</span>
+          <span><span class="swatch" style="background:#c62828"></span>CD (抗通胀)</span>
+        </div>
+        <div class="chart-axis-y" style="top:14px;left:6px">$155k</div>
+        <div class="chart-axis-y" style="bottom:14px;left:6px">$0</div>
+        <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+          <line x1="20" y1="100" x2="390" y2="100" stroke="#00897b" stroke-width="2.5"/>
+          <polyline points="20,100 60,93 110,84 170,72 230,58 290,42 340,28 390,15"
+            fill="none" stroke="#c62828" stroke-width="2.5"/>
+          <line x1="20" y1="155" x2="390" y2="155" stroke="#ccc" stroke-width="0.5"/>
+        </svg>
+      </div>
+      <p class="chart-caption">CP 一直 $73,884/年 · CD 从 $73,884 涨到 $154,680/年</p>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;padding:12px 16px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:4px;font-size:12px;line-height:1.6">
+    <strong>顾问演示话术（这两张图能讲什么）：</strong><br/>
+    • 右图绿线：「20 年后您还是只能拿 $6,157——但那时一杯咖啡可能要 $10」<br/>
+    • 右图红线：「按通胀调整，20 年后您能拿 $11,000+，保持今天的生活水准」<br/>
+    • 左图：「但红色策略代价是 25 年后本金归零；绿色策略本金 100% 留给后代」
+  </div>
+</div>
+
+<div class="options" style="margin-top:30px">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>Step 3 v2 OK，继续看 § 5（计算公式 / 技术结构）</h3></div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content"><h3>还需调整</h3></div>
+  </div>
+</div>

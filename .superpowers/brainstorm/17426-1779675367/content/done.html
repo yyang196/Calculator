@@ -1,0 +1,62 @@
+<h2>✅ Retirement Planner — 已交付</h2>
+<p class="subtitle">单文件 HTML · 58KB · 双击即开 · Editorial Wealth 美学</p>
+
+<style>
+.deliverable { background: #FAF5E8; border: 1px solid #d0c9b8; padding: 24px 28px; border-radius: 4px; margin: 20px 0; }
+.deliverable code { background: #fff; padding: 4px 10px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Menlo', monospace; font-size: 12px; display: inline-block; margin-top: 6px; }
+.checklist { margin: 18px 0; padding: 0; list-style: none; }
+.checklist li { padding: 6px 0 6px 28px; position: relative; font-size: 13px; line-height: 1.5; }
+.checklist li::before { content: '✓'; position: absolute; left: 0; color: #2C5A3D; font-weight: 700; }
+.specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.spec-card { background: #fff; border-left: 3px solid #6B1820; padding: 12px 16px; font-size: 12.5px; }
+.spec-card .lbl { font-family: 'Menlo', monospace; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 4px; }
+</style>
+
+<div class="deliverable">
+  <p style="font-weight: 600; margin-bottom: 6px;">📂 打开文件</p>
+  <code>open /Users/yyang/Documents/Claude_proj/Calculator/retirement.html</code>
+  <p style="margin-top: 12px; font-size: 12.5px; color: #666;">或在 Finder 中双击文件 / 拖到浏览器中。</p>
+</div>
+
+<h3 style="margin: 22px 0 10px 0">已验证</h3>
+<ul class="checklist">
+  <li>3 步向导导航：01 Profile → 02 Assumptions → 03 Outlook</li>
+  <li>所有滑块、表单、toggle 工作正常</li>
+  <li>Math 验证（默认参数 35→60→85，2,900/mo，5%/3% pre, 3%/3% post）：
+    <br/>　Lump sum = <strong>S$1,821,587</strong>
+    <br/>　Monthly savings = <strong>S$2,416</strong>
+    <br/>　CP monthly = CD initial = <strong>S$6,072</strong>
+    <br/>　CD final = <strong>S$12,343</strong>（25 年通胀后）
+    <br/>　Depletion = <strong>Year 25 · age 85</strong>（与解析公式一致）
+  </li>
+  <li>Lump sum 公式修正版（含 (1+r) 因子）已实施</li>
+  <li>Capital Drawdown 含浮点容差，准确判定「计划内/恰好/计划外」三种状态</li>
+  <li>Charts: Chart.js v4 三张（timeline + balance + withdrawal）</li>
+  <li>Live sliders 实时驱动重算与重绘</li>
+  <li>Print / Save as PDF 通过 window.print()</li>
+</ul>
+
+<h3 style="margin: 22px 0 10px 0">美学规格</h3>
+<div class="specs-grid">
+  <div class="spec-card">
+    <div class="lbl">Typography</div>
+    Fraunces (variable serif) · Geist (sans) · Geist Mono (data)
+  </div>
+  <div class="spec-card">
+    <div class="lbl">Palette</div>
+    Parchment #F4EEDF · Ink #1A1814 · Oxblood #6B1820
+  </div>
+  <div class="spec-card">
+    <div class="lbl">Phase colors</div>
+    Forest · Amber · Deep Blue
+  </div>
+  <div class="spec-card">
+    <div class="lbl">Strategy colors</div>
+    Teal (CP) · Ember (CD)
+  </div>
+</div>
+
+<div style="margin-top: 22px; padding: 14px 18px; background: #fffbe6; border-left: 4px solid #f9a825; border-radius: 4px; font-size: 12.5px;">
+  <strong>下一步建议</strong>：
+  打开文件检视实物。如需调整文案、颜色、字段顺序或加新功能（如 PDF 客户姓名字段、CPF/SRS v2 模块），随时告诉我。
+</div>

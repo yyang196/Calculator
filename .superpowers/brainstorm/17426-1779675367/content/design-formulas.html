@@ -1,0 +1,186 @@
+<h2>设计 § 5 · 计算公式与技术结构</h2>
+<p class="subtitle">数学模型 · 文件结构 · 范围界定</p>
+
+<style>
+.formula-card { background: #fff; border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 4px solid #1565c0; }
+.formula-card.cp { border-left-color: #00897b; }
+.formula-card.cd { border-left-color: #c62828; }
+.formula-card h4 { margin: 0 0 8px 0; font-size: 13px; color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px; }
+.formula-card.cp h4 { color: #00695c; }
+.formula-card.cd h4 { color: #b71c1c; }
+.formula-card p { font-size: 12.5px; color: #444; margin: 4px 0; line-height: 1.5; }
+.fbox { background: #f5f7fa; border: 1px dashed #ccd; padding: 10px 14px; border-radius: 4px; font-family: 'Menlo','Monaco',monospace; font-size: 12px; color: #1565c0; margin: 8px 0; line-height: 1.6; overflow-x: auto; }
+.fbox.cp { color: #00695c; }
+.fbox.cd { color: #b71c1c; }
+.var { color: #888; font-style: italic; }
+.note { font-size: 11px; color: #888; font-style: italic; }
+
+.tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tech-card { background: #fff; border-radius: 8px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.tech-card h4 { margin: 0 0 8px 0; font-size: 13px; color: #333; text-transform: uppercase; letter-spacing: 0.4px; padding-bottom: 5px; border-bottom: 2px solid #e3f2fd; }
+.tech-card ul { margin: 6px 0; padding-left: 20px; font-size: 12.5px; line-height: 1.6; color: #444; }
+.tech-card .file-tree { font-family: 'Menlo',monospace; font-size: 11.5px; background: #f5f7fa; padding: 10px 14px; border-radius: 4px; line-height: 1.7; color: #333; }
+.tech-card .file-tree .c { color: #888; }
+
+.scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.scope-in { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 12px 16px; border-radius: 4px; }
+.scope-out { background: #fff3e0; border-left: 4px solid #ef6c00; padding: 12px 16px; border-radius: 4px; }
+.scope-in h4 { margin: 0 0 6px 0; color: #1b5e20; font-size: 13px; }
+.scope-out h4 { margin: 0 0 6px 0; color: #e65100; font-size: 13px; }
+.scope-in ul, .scope-out ul { margin: 4px 0; padding-left: 18px; font-size: 12px; line-height: 1.6; }
+</style>
+
+<h3 style="margin:18px 0 8px 0;color:#1565c0">📐 计算流程（按 Step 顺序）</h3>
+
+<div class="formula-card">
+  <h4>① Future Value of Desired Monthly Expense</h4>
+  <p>把客户输入的「今日月开销」逐段通胀到 decumulation 起始点</p>
+  <div class="fbox">
+    monthly_at_decum = desired_monthly_today<br/>
+    &nbsp;&nbsp;× (1 + i_pre) ^ years_pre<br/>
+    &nbsp;&nbsp;× (1 + i_wait) ^ years_wait&nbsp;&nbsp;<span class="var">// 若等待期关闭则 years_wait = 0</span><br/>
+    <br/>
+    annual_at_decum = monthly_at_decum × 12
+  </div>
+</div>
+
+<div class="formula-card">
+  <h4>② Lump Sum Needed @ Start of Decumulation</h4>
+  <p>支付 N 年逐年抗通胀提取所需的本金（生长年金 PV，期初提取，余额按 r_post 复利）</p>
+  <div class="fbox">
+    <span class="var">// r ≠ i 时:</span><br/>
+    LS = annual_at_decum × [1 − ((1 + i_post)/(1 + r_post))^N] / (r_post − i_post)<br/>
+    <br/>
+    <span class="var">// r = i 退化为:</span><br/>
+    LS = annual_at_decum × N / (1 + r_post)
+  </div>
+  <p class="note">N = years_retired；与 Excel UT-FI-10 row 24 的 H 列递推公式严格一致（B_N = 0 边界）</p>
+</div>
+
+<div class="formula-card">
+  <h4>③ Monthly Savings Required (From Now)</h4>
+  <p>已有储蓄复利增长 + 月供累积 → 累积到 LS（折回到退休时点）</p>
+  <div class="fbox">
+    target_at_retirement = LS / (1 + r_wait) ^ years_wait<br/>
+    ES_at_retirement = existing_savings × (1 + r_pre) ^ years_pre<br/>
+    shortfall = target_at_retirement − ES_at_retirement<br/>
+    <br/>
+    m_pre = (1 + r_pre)^(1/12) − 1&nbsp;&nbsp;<span class="var">// 月化利率</span><br/>
+    M = years_pre × 12<br/>
+    <br/>
+    monthly_savings = shortfall / [((1 + m_pre)^M − 1) / m_pre]
+  </div>
+</div>
+
+<div class="formula-card cp">
+  <h4>④ Capital Preservation Model</h4>
+  <p>每年只取本金产生的股息，本金恒定</p>
+  <div class="fbox cp">
+    annual_income_CP = LS × yield_cp<br/>
+    monthly_income_CP = annual_income_CP / 12<br/>
+    capital_CP(t) = LS&nbsp;&nbsp;<span class="var">// 任意年份恒为 LS</span><br/>
+    <br/>
+    real_value_at_year_t = annual_income_CP / (1 + i_post)^t&nbsp;&nbsp;<span class="var">// 用于"今日购买力"显示</span>
+  </div>
+</div>
+
+<div class="formula-card cd">
+  <h4>⑤ Capital Drawdown Model（与您 Excel UT-FI-10 一致）</h4>
+  <p>年初提取，剩余按 r_post 增长；提取额每年按 i_post 上涨</p>
+  <div class="fbox cd">
+    W_1 = LS × withdrawal_cd&nbsp;&nbsp;<span class="var">// 用户可调；默认 4%</span><br/>
+    W_t = W_1 × (1 + i_post) ^ (t − 1)<br/>
+    B_0 = LS<br/>
+    B_t = (B_{t-1} − W_t) × (1 + r_post)&nbsp;&nbsp;<span class="var">// 余额递推</span><br/>
+    <br/>
+    depletion_year = min{ t : B_t ≤ 0 }&nbsp;&nbsp;<span class="var">// 耗尽年份，可能 &gt; years_retired 表示有盈余</span>
+  </div>
+</div>
+
+<h3 style="margin:22px 0 10px 0;color:#1565c0">🛠 技术结构</h3>
+
+<div class="tech-grid">
+  <div class="tech-card">
+    <h4>文件结构</h4>
+    <div class="file-tree">
+      Calculator/<br/>
+      ├── retirement.html&nbsp;&nbsp;<span class="c"># 主文件 (50–80KB)</span><br/>
+      ├── Proposal_retire_invest.xlsx<br/>
+      └── docs/superpowers/specs/<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;└── 2026-05-25-retirement-<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;calculator-design.md
+    </div>
+    <p style="font-size:11.5px;color:#666;margin:8px 0 0 0">单文件 HTML，内联 CSS + 内联 JS，双击即开</p>
+  </div>
+
+  <div class="tech-card">
+    <h4>技术栈</h4>
+    <ul>
+      <li><strong>HTML5</strong> + Vanilla JS（ES2020+）</li>
+      <li><strong>CSS</strong>：内联，CSS Grid + Flexbox</li>
+      <li><strong>Chart.js v4</strong>（CDN 引入，<code>~70KB</code>）<br/>用于资产余额图 + 取款额图</li>
+      <li><strong>无构建步骤</strong>、<strong>无后端</strong>、<strong>无数据上传</strong></li>
+      <li>支持浏览器 <strong>Print → Save as PDF</strong>（@media print 优化版面）</li>
+    </ul>
+  </div>
+
+  <div class="tech-card">
+    <h4>状态管理</h4>
+    <ul>
+      <li>单一全局 <code>state</code> 对象（所有输入字段）</li>
+      <li>任意输入变化 → 触发 <code>recalculate()</code> → 重渲染所有派生数</li>
+      <li>Step 3 的滑块响应 <code>input</code> 事件 → 实时更新（无需"Calculate"按钮）</li>
+    </ul>
+  </div>
+
+  <div class="tech-card">
+    <h4>验证 / 边界</h4>
+    <ul>
+      <li>退休年龄必须 ≥ 现年龄 + 1</li>
+      <li>所有 %、年龄、金额 ≥ 0</li>
+      <li>r = i 时退化公式自动切换</li>
+      <li>计算总额 ≤ JS Number.MAX_SAFE_INTEGER（足够覆盖任何合理场景）</li>
+      <li>Capital Drawdown 提前耗尽时，图表延伸到耗尽年并标红</li>
+    </ul>
+  </div>
+</div>
+
+<h3 style="margin:22px 0 10px 0;color:#1565c0">🎯 范围界定（v1 in/out）</h3>
+
+<div class="scope-grid">
+  <div class="scope-in">
+    <h4>✅ v1 包含</h4>
+    <ul>
+      <li>3 步向导（Step 1/2/3）</li>
+      <li>3 段费率（pre / 可选 waiting / post）</li>
+      <li>3 档生活方式预设（GE 原数）+ 自定义</li>
+      <li>Lump sum 与每月所需储蓄计算</li>
+      <li>两种取款策略（CP + CD）+ 实时可调取款率</li>
+      <li>两张图表（余额 + 取款额）</li>
+      <li>打印 / Save as PDF</li>
+      <li>语言：英文 UI（专业术语保持英文，符合 GE 风格）</li>
+    </ul>
+  </div>
+  <div class="scope-out">
+    <h4>⏸ v1 不包含（留给后续版本）</h4>
+    <ul>
+      <li>CPF LIFE / SRS / MediSave 等新加坡本地政策模块</li>
+      <li>多收入流叠加（年金 / 租金 / 股息混合）</li>
+      <li>Mode B（投影计算 Projection）</li>
+      <li>多情景并行对比（保守 / 中性 / 激进）</li>
+      <li>客户数据保存 / 历史版本对比</li>
+      <li>中英双语切换（v1 英文为主，重要标签可加中文副标题）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="options" style="margin-top:30px">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>§5 OK，全部设计已确认，可以写入设计文档</h3></div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content"><h3>需调整公式或技术结构</h3></div>
+  </div>
+</div>

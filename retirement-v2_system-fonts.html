@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retirement Planner — Yang Yang</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #F4EEDF;
+    --bg-paper: #FAF5E8;
+    --bg-card: #FFFAEE;
+    --ink: #1A1814;
+    --ink-soft: #6B6358;
+    --ink-faint: #9B9388;
+    --hair: rgba(26, 24, 20, 0.12);
+    --hair-strong: rgba(26, 24, 20, 0.32);
+    --rule: rgba(26, 24, 20, 0.85);
+
+    --accent: #6B1820;        /* deep oxblood for primary CTA + emphasis */
+    --pre: #2C5A3D;            /* forest — accumulation */
+    --wait: #B5803A;           /* amber — waiting */
+    --post: #1F3D5C;           /* deep blue — decumulation */
+    --cp: #3D6661;             /* teal — capital preservation */
+    --cd: #A03E2C;             /* ember — capital drawdown */
+
+    --serif: 'Georgia', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --mono: ui-monospace, 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    --zh: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  }
+
+  /* ============ Chinese typographic siblings ============ */
+  /* Bilingual layout: English remains primary; Chinese sits subordinate in muted ink, slightly smaller. */
+  .zh { font-family: var(--zh); font-weight: 400; font-style: normal; letter-spacing: 0; }
+  .zh-title    { display: block; font-family: var(--zh); font-weight: 400; font-size: 19px; color: var(--ink-soft); margin-top: 10px; letter-spacing: 0.04em; line-height: 1.3; }
+  .zh-lede     { display: block; font-family: var(--zh); font-weight: 300; font-size: 13.5px; color: var(--ink-faint); margin-top: 6px; line-height: 1.55; letter-spacing: 0.02em; }
+  .zh-kicker   { display: inline; font-family: var(--zh); font-weight: 400; font-size: 10.5px; color: var(--ink-soft); margin-left: 8px; letter-spacing: 0.12em; text-transform: none; }
+  .zh-lbl      { display: block; font-family: var(--zh); font-weight: 400; font-size: 11px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.05em; text-transform: none; line-height: 1.3; }
+  .section-lbl .txt .zh-lbl,
+  .years-bar .ylabel .zh-lbl,
+  .toggle .lbl .zh-lbl,
+  .narrative .nlbl .zh-lbl { display: inline-block; margin-top: 0; margin-left: 10px; }
+  .zh-lbl-blk  { display: block; font-family: var(--zh); font-weight: 400; font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.05em; text-transform: none; }
+  .zh-help     { display: block; font-family: var(--zh); font-weight: 300; font-size: 11.5px; color: var(--ink-faint); margin-top: 3px; line-height: 1.5; font-style: normal; }
+  .zh-kpi      { display: block; font-family: var(--zh); font-weight: 400; font-size: 10.5px; color: var(--ink-faint); margin-top: 4px; letter-spacing: 0.05em; line-height: 1.3; text-transform: none; }
+  .zh-btn      { display: block; font-family: var(--zh); font-weight: 400; font-size: 9.5px; margin-top: 3px; letter-spacing: 0.08em; opacity: 0.85; text-transform: none; }
+  .zh-tag      { display: block; font-family: var(--zh); font-weight: 400; font-size: 10.5px; color: inherit; opacity: 0.85; margin-top: 3px; letter-spacing: 0.05em; text-transform: none; }
+  .zh-strat    { display: block; font-family: var(--zh); font-weight: 400; font-size: 15px; color: var(--ink-soft); margin-top: 4px; letter-spacing: 0.04em; }
+  .zh-phase    { display: inline-block; font-family: var(--zh); font-weight: 400; font-size: 13px; color: var(--ink-soft); margin-left: 6px; letter-spacing: 0.05em; }
+  .zh-preset   { display: block; font-family: var(--zh); font-weight: 400; font-size: 12px; color: var(--ink-faint); margin-top: 4px; letter-spacing: 0.04em; }
+  .zh-brand    { display: block; font-family: var(--zh); font-weight: 400; font-size: 12px; color: var(--ink-soft); margin-top: 3px; letter-spacing: 0.08em; }
+  .zh-narr     { display: block; font-family: var(--zh); font-weight: 300; font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; line-height: 1.5; }
+  .zh-chunit   { font-family: var(--zh); font-weight: 400; font-size: 9.5px; color: var(--ink-faint); margin-left: 6px; letter-spacing: 0.05em; text-transform: none; }
+  .zh-legend   { font-family: var(--zh); font-weight: 400; font-size: 9px; color: var(--ink-faint); margin-left: 4px; letter-spacing: 0.04em; text-transform: none; }
+  .zh-radio    { font-family: var(--zh); font-weight: 400; font-size: 11px; margin-left: 6px; letter-spacing: 0.04em; }
+  .zh-suf      { font-family: var(--zh); font-weight: 400; font-size: 10px; margin-left: 4px; letter-spacing: 0.05em; text-transform: none; }
+  .zh-step     { font-family: var(--zh); font-weight: 400; font-size: 10px; margin-left: 4px; letter-spacing: 0.05em; text-transform: none; opacity: 0.85; }
+  .zh-rate-desc{ display: block; font-family: var(--zh); font-weight: 400; font-size: 11px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.04em; }
+
+  /* Tabular figures for all numeric display elements */
+  .kpi .kval, .strat-row-item .srv, .inp-line input, .inp-line .pre, .slider-val,
+  .rate-value, .preset .pamt, .stepnav .n, .masthead .num, .field-val,
+  .kpi .kunit, .strat-row-item .srn { font-variant-numeric: tabular-nums lining-nums; }
+
+  /* Switch financial-data numbers to monospace for tabular alignment */
+  .kpi .kval { font-family: var(--mono); font-weight: 500; letter-spacing: -0.01em; }
+  .kpi .kval .kcur { font-family: var(--mono); font-weight: 400; }
+  .strat-row-item .srv { font-family: var(--mono); font-weight: 500; letter-spacing: -0.005em; }
+  .strat-row-item .srv .scur { font-family: var(--mono); font-weight: 400; }
+  .slider-val { font-family: var(--mono); font-weight: 500; }
+  .rate-value { font-family: var(--mono) !important; font-weight: 500 !important; }
+  .inp-line input { font-family: var(--mono); font-weight: 500; letter-spacing: -0.005em; }
+  .inp-line .pre { font-family: var(--mono); font-weight: 400; }
+  .field-val { font-family: var(--mono); font-weight: 500; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-weight: 400; line-height: 1.55; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  /* subtle paper grain */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.4;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* ============ HEADER ============ */
+  .topbar {
+    position: relative; z-index: 5;
+    padding: 22px 56px 18px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 32px;
+  }
+  .topbar::after {
+    content: ''; position: absolute; left: 56px; right: 56px; bottom: -4px; height: 1px; background: var(--rule); opacity: 0.3;
+  }
+  .brand { line-height: 1; }
+  .brand .mark { font-family: var(--sans); font-size: 10.5px; font-weight: 500; letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink); }
+  .brand .name { font-family: var(--serif); font-style: italic; font-size: 26px; font-weight: 400; margin-top: 6px; color: var(--ink); }
+  .brand .sub { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--ink-soft); font-weight: 400; margin-top: 5px; display: block; }
+
+  .stepnav { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); }
+  .stepnav .s { display: flex; align-items: baseline; gap: 6px; padding: 4px 0; }
+  .stepnav .s .n { font-family: var(--serif); font-size: 17px; color: var(--ink-faint); }
+  .stepnav .s .lbl { display: inline-flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
+  .stepnav .s .zh-step { margin-left: 0; margin-top: 2px; color: var(--ink-faint); }
+  .stepnav .s.active .zh-step { color: var(--accent); opacity: 0.7; }
+  .stepnav .s.done .zh-step { color: var(--ink-soft); opacity: 0.7; }
+  .stepnav .s.done .n, .stepnav .s.done .lbl { color: var(--ink-soft); }
+  .stepnav .s.active .n { color: var(--accent); font-weight: 600; }
+  .stepnav .s.active .lbl { color: var(--accent); }
+  .stepnav .div { width: 22px; height: 1px; background: var(--hair-strong); }
+
+  /* ============ MAIN ============ */
+  main { position: relative; z-index: 4; padding: 38px 56px 80px; max-width: 1080px; margin: 0 auto; }
+
+  /* ============ ENTRANCE ANIMATIONS ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes numReveal {
+    from { opacity: 0; transform: translateY(24px) skewY(2deg); }
+    to   { opacity: 1; transform: translateY(0) skewY(0deg); }
+  }
+  @keyframes ruleExpand {
+    from { transform: scaleX(0); transform-origin: left; }
+    to   { transform: scaleX(1); transform-origin: left; }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(32px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Page-load entrance for topbar */
+  .topbar { animation: fadeIn 0.6s ease-out both; }
+  .brand  { animation: fadeUp 0.7s 0.1s ease-out both; }
+  .stepnav { animation: slideInRight 0.7s 0.2s ease-out both; }
+
+  /* Step transitions */
+  .step { display: none; opacity: 0; transform: translateY(12px); }
+  .step.active {
+    display: block;
+    animation: fadeUp 0.45s ease-out forwards;
+  }
+  .step.leaving {
+    animation: fadeOut 0.25s ease-in forwards;
+    pointer-events: none;
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-8px); }
+  }
+
+  /* Masthead entrance — orchestrated */
+  .masthead .num {
+    display: inline-block;
+    animation: numReveal 0.7s 0.15s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  .masthead .kicker { animation: fadeUp 0.5s 0.25s ease-out both; }
+  .masthead .title  { animation: fadeUp 0.6s 0.32s ease-out both; }
+  .masthead .lede   { animation: fadeUp 0.6s 0.42s ease-out both; }
+
+  /* Section labels animate in */
+  .section-lbl { overflow: hidden; }
+  .section-lbl .rule { animation: ruleExpand 0.8s 0.3s ease-out both; }
+
+  /* Preset cards stagger */
+  .preset:nth-child(1) { animation: fadeUp 0.5s 0.1s ease-out both; }
+  .preset:nth-child(2) { animation: fadeUp 0.5s 0.2s ease-out both; }
+  .preset:nth-child(3) { animation: fadeUp 0.5s 0.3s ease-out both; }
+
+  /* Phase cards stagger */
+  .phase.pre  { animation: fadeUp 0.5s 0.1s ease-out both; }
+  .phase.wait { animation: fadeUp 0.5s 0.2s ease-out both; }
+  .phase.post { animation: fadeUp 0.5s 0.3s ease-out both; }
+
+  /* KPI rows */
+  .kpi-row .kpi { animation: fadeUp 0.5s ease-out both; }
+  .kpi-row .kpi:nth-child(1) { animation-delay: 0.05s; }
+  .kpi-row .kpi:nth-child(2) { animation-delay: 0.15s; }
+  .kpi-row .kpi:nth-child(3) { animation-delay: 0.25s; }
+
+  /* KPI value pulse on update */
+  @keyframes kpiPulse {
+    0%   { opacity: 1; }
+    30%  { opacity: 0.35; transform: scale(0.97); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .kpi-updating .kval {
+    animation: kpiPulse 0.35s ease-out;
+  }
+
+  /* Strategy cards */
+  .strat:nth-child(1) { animation: fadeUp 0.5s 0.1s ease-out both; }
+  .strat:nth-child(2) { animation: fadeUp 0.5s 0.2s ease-out both; }
+
+  /* Chart cards */
+  .timeline-card { animation: fadeUp 0.55s 0.1s ease-out both; }
+  .chart-card:nth-child(1) { animation: fadeUp 0.5s 0.15s ease-out both; }
+  .chart-card:nth-child(2) { animation: fadeUp 0.5s 0.25s ease-out both; }
+
+  /* Narrative */
+  .narrative { animation: fadeUp 0.5s 0.2s ease-out both; }
+
+
+  /* Chapter masthead */
+  .masthead { display: flex; align-items: flex-start; gap: 30px; padding-bottom: 26px; margin-bottom: 36px; border-bottom: 1px solid var(--hair); position: relative; }
+  .masthead::after { content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: var(--hair); }
+  .masthead .num { font-family: var(--serif); font-size: 92px; line-height: 0.85; color: var(--accent); font-feature-settings: 'lnum'; letter-spacing: -0.04em; font-style: italic; font-weight: 400; opacity: 0.9; }
+  .masthead .meta { flex: 1; padding-top: 14px; }
+  .masthead .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
+  .masthead .title { font-family: var(--serif); font-size: 44px; line-height: 1.05; letter-spacing: -0.01em; color: var(--ink); font-weight: 400; }
+  .masthead .lede { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink-soft); max-width: 540px; margin-top: 10px; line-height: 1.5; }
+
+  /* Section */
+  .section { margin-bottom: 38px; }
+  .section-lbl { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .section-lbl .bullet { width: 5px; height: 5px; background: var(--accent); transform: rotate(45deg); }
+  .section-lbl .txt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink); font-weight: 500; }
+  .section-lbl .rule { flex: 1; height: 1px; background: var(--hair); margin-left: 6px; }
+
+  /* Form fields */
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 36px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field.col-span-2 { grid-column: 1 / -1; }
+  .label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); }
+  .help { font-family: var(--serif); font-style: italic; font-size: 12.5px; color: var(--ink-faint); margin-top: 2px; line-height: 1.45; }
+
+  /* Number input with underline */
+  .inp-line { display: flex; align-items: baseline; gap: 10px; padding: 6px 0 8px; border-bottom: 1px solid var(--rule); transition: border-color 0.2s; }
+  .inp-line:focus-within { border-color: var(--accent); }
+  .inp-line .pre { font-family: var(--serif); font-size: 22px; color: var(--ink-soft); }
+  .inp-line input { all: unset; flex: 1; font-family: var(--serif); font-size: 28px; color: var(--ink); font-feature-settings: 'lnum','tnum'; min-width: 0; }
+  .inp-line .suf { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); align-self: center; }
+
+  /* Slider field */
+  .slider-row { display: flex; align-items: center; gap: 18px; padding: 6px 0 4px; }
+  .slider-track { flex: 1; height: 2px; background: var(--hair-strong); position: relative; cursor: pointer; }
+  .slider-fill { position: absolute; height: 2px; background: var(--accent); top: 0; left: 0; transition: width 0.05s linear; }
+  .slider-thumb {
+    position: absolute; width: 12px; height: 12px;
+    background: var(--bg-card); border: 1.5px solid var(--accent);
+    top: 50%; transform: translate(-50%, -50%) rotate(45deg);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: grab;
+  }
+  .slider-track:hover .slider-thumb {
+    box-shadow: 0 0 0 5px rgba(107,24,32,0.10);
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.15);
+  }
+  .slider-thumb.dragging {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.25) !important;
+    box-shadow: 0 0 0 8px rgba(107,24,32,0.13) !important;
+  }
+  .slider-val { transition: color 0.15s; }
+  .slider-val.dragging { color: var(--accent) !important; }
+  .slider-val { font-family: var(--serif); font-size: 22px; color: var(--ink); min-width: 48px; text-align: right; font-feature-settings: 'lnum','tnum'; }
+
+  /* Radio (gender) */
+  .radio-row { display: flex; gap: 0; border: 1px solid var(--rule); margin-top: 2px; width: max-content; }
+  .radio-row label { min-width: 100px; text-align: center; white-space: nowrap; padding: 10px 20px; font-family: var(--sans); font-size: 13px; letter-spacing: 0.04em; cursor: pointer; color: var(--ink-soft); transition: all 0.18s; border-right: 1px solid var(--rule); }
+  .radio-row label:last-child { border-right: none; }
+  .radio-row label.sel { background: var(--ink); color: var(--bg-paper); }
+  .radio-row input { display: none; }
+
+  /* Lifestyle preset cards */
+  .preset-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .preset { padding: 18px 18px 20px; background: var(--bg-card); border: 1px solid var(--hair); cursor: pointer; transition: all 0.2s; position: relative; }
+  .preset:hover { border-color: var(--hair-strong); transform: translateY(-1px); }
+  .preset.sel { border-color: var(--accent); background: var(--bg-paper); }
+  .preset.sel::before { content: ''; position: absolute; top: -1px; left: -1px; right: -1px; height: 3px; background: var(--accent); }
+  .preset .ptier { font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); }
+  .preset .pamt { font-family: var(--serif); font-size: 30px; color: var(--ink); margin-top: 10px; font-feature-settings: 'lnum'; letter-spacing: -0.01em; }
+  .preset .pamt .pcur { font-size: 16px; color: var(--ink-soft); vertical-align: top; line-height: 2; margin-right: 2px; }
+  .preset .pdesc { font-family: var(--serif); font-style: italic; font-size: 12px; color: var(--ink-faint); margin-top: 6px; }
+
+  /* Phase cards (Step 2) */
+  .phase { background: var(--bg-card); border: 1px solid var(--hair); padding: 24px 28px; margin-bottom: 14px; position: relative; transition: all 0.2s; }
+  .phase::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--phase-c, var(--ink-soft)); }
+  .phase.pre { --phase-c: var(--pre); }
+  .phase.wait { --phase-c: var(--wait); }
+  .phase.post { --phase-c: var(--post); }
+  .phase.wait.disabled { opacity: 0.5; padding: 16px 28px; }
+  .phase.wait.disabled .phase-body { display: none; }
+  .phase-head { display: flex; justify-content: space-between; align-items: center; }
+  .phase-numlbl { display: flex; align-items: baseline; gap: 12px; }
+  .phase-numlbl .romnum { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--phase-c); }
+  .phase-numlbl .ptitle { font-family: var(--serif); font-size: 22px; letter-spacing: -0.005em; color: var(--ink); }
+  .phase-numlbl .psub { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--ink-faint); margin-left: 12px; }
+  .phase-body { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 36px; }
+
+  /* Toggle switch */
+  .toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .toggle .sw { width: 36px; height: 20px; background: var(--hair-strong); border-radius: 0; position: relative; transition: background 0.2s; }
+  .toggle .sw::after { content: ''; position: absolute; width: 14px; height: 14px; background: var(--bg-paper); top: 3px; left: 3px; transition: transform 0.2s; }
+  .toggle.on .sw { background: var(--wait); }
+  .toggle.on .sw::after { transform: translateX(16px); }
+  .toggle .lbl { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* Year input for waiting period */
+  .years-bar { background: rgba(181, 128, 58, 0.08); padding: 14px 18px; margin-bottom: 18px; display: flex; align-items: center; gap: 18px; border-left: 2px solid var(--wait); }
+  .years-bar .ylabel { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wait); }
+  .years-bar .yinp { background: var(--bg-card); border: 1px solid var(--hair-strong); padding: 4px 12px; font-family: var(--serif); font-size: 20px; width: 60px; text-align: center; }
+  .years-bar .yhelp { font-family: var(--serif); font-style: italic; font-size: 12px; color: var(--ink-faint); }
+
+  /* ============ STEP 3 ============ */
+
+  /* KPI row */
+  .kpi-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 0; border-top: 2px solid var(--rule); border-bottom: 2px solid var(--rule); padding: 28px 0; margin-bottom: 32px; position: relative; }
+  .kpi-row.cols-2 { grid-template-columns: 1.4fr 1fr; }
+  .kpi-row.cols-3eq { grid-template-columns: 1fr 1fr 1fr; }
+  .kpi .kunit { font-size: 0.42em; color: var(--ink-soft); margin-left: 6px; vertical-align: baseline; letter-spacing: 0; }
+  .kpi.alert.expense-end .kval { color: var(--cd); }
+  .kpi .arrow-from { position: absolute; left: -14px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); font-family: var(--serif); font-style: italic; font-size: 22px; }
+  .kpi-row::before, .kpi-row::after { content: ''; position: absolute; left: 0; right: 0; height: 1px; background: var(--rule); }
+  .kpi-row::before { top: 4px; }
+  .kpi-row::after { bottom: 4px; }
+  .kpi { padding: 0 28px; border-right: 1px solid var(--hair); }
+  .kpi:first-child { padding-left: 0; }
+  .kpi:last-child { border-right: none; padding-right: 0; }
+  .kpi .klbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.4; }
+  .kpi .kval { font-family: var(--serif); line-height: 1; letter-spacing: -0.03em; color: var(--ink); font-feature-settings: 'lnum','tnum'; font-weight: 400; }
+  .kpi.primary .kval { font-size: 58px; color: var(--accent); font-style: italic; }
+  .kpi .kval { font-size: 38px; }
+  .kpi .kval .kcur { font-family: var(--serif); font-size: 0.5em; vertical-align: top; line-height: 2.3; color: var(--ink-soft); margin-right: 4px; }
+  .kpi .ksub { font-family: var(--serif); font-style: italic; font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; line-height: 1.45; }
+  .kpi.alert .kval { color: var(--cd); }
+
+  /* Asset timeline chart container */
+  .timeline-card { background: var(--bg-card); border: 1px solid var(--hair); padding: 26px 28px 22px; margin-bottom: 36px; }
+  .timeline-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .timeline-head .lt { font-family: var(--serif); font-size: 20px; }
+  .timeline-head .rt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); }
+  .timeline-chart-wrap { height: 180px; position: relative; }
+  .phase-bar { display: flex; height: 18px; margin-top: 12px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--bg-paper); }
+  .phase-bar > div { display: flex; align-items: center; padding: 0 10px; }
+  .phase-bar .b-pre { background: var(--pre); }
+  .phase-bar .b-wait { background: var(--wait); }
+  .phase-bar .b-post { background: var(--post); }
+
+  /* Live rate controls */
+  .rate-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; background: var(--bg-paper); border: 1px solid var(--hair); border-top: 2px solid var(--accent); padding: 22px 26px; margin-bottom: 24px; position: relative; }
+  .rate-controls::before { content: 'LIVE — DRAG TO ADJUST'; position: absolute; top: -10px; left: 24px; background: var(--bg); padding: 0 10px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.25em; color: var(--accent); }
+  .rate-ctrl-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .rate-ctrl-head .rname { font-family: var(--serif); font-size: 17px; color: var(--ctrl-c, var(--ink)); }
+  .rate-ctrl-head .rname .ic { font-style: italic; font-weight: 400; margin-right: 6px; font-size: 14px; color: var(--ink-faint); }
+  .rate-ctrl-head .rdesc { font-family: var(--serif); font-style: italic; font-size: 12px; color: var(--ink-faint); }
+  .rate-ctrl.cp { --ctrl-c: var(--cp); }
+  .rate-ctrl.cd { --ctrl-c: var(--cd); }
+  .rate-ctrl .slider-track { background: var(--hair-strong); }
+  .rate-ctrl .slider-fill { background: var(--ctrl-c); }
+  .rate-ctrl .slider-thumb { border-color: var(--ctrl-c); }
+  .rate-ctrl .slider-val { color: var(--ctrl-c); font-size: 26px; }
+
+  /* Strategy comparison */
+  .strat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 26px; }
+  .strat { background: var(--bg-card); border: 1px solid var(--hair); padding: 26px 28px; position: relative; }
+  .strat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--strat-c); }
+  .strat.cp { --strat-c: var(--cp); }
+  .strat.cd { --strat-c: var(--cd); }
+  .strat-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--strat-c); margin-bottom: 6px; }
+  .strat-name { font-family: var(--serif); font-size: 26px; letter-spacing: -0.01em; color: var(--ink); }
+  .strat-icon { font-family: var(--serif); font-style: italic; font-size: 26px; color: var(--strat-c); margin-right: 8px; }
+  .strat-desc { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+  .strat-divider { height: 1px; background: var(--hair); margin: 16px 0; }
+  .strat-row-item { padding: 10px 0; border-bottom: 1px dotted var(--hair); }
+  .strat-row-item:last-child { border-bottom: none; }
+  .strat-row-item .srl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); }
+  .strat-row-item .srv { font-family: var(--serif); font-size: 24px; color: var(--strat-c); margin-top: 4px; line-height: 1.1; font-feature-settings: 'lnum','tnum'; }
+  .strat-row-item .srv.muted { color: var(--ink-soft); font-size: 18px; }
+  .strat-row-item .srv .scur { font-size: 0.55em; color: var(--ink-soft); vertical-align: top; line-height: 2.1; margin-right: 3px; }
+  .strat-row-item .srn { font-family: var(--serif); font-style: italic; font-size: 11.5px; color: var(--ink-faint); margin-top: 4px; line-height: 1.4; }
+
+  /* Two charts */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+  .chart-card { background: var(--bg-card); border: 1px solid var(--hair); padding: 22px 24px 18px; }
+  .chart-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .chart-head .cht { font-family: var(--serif); font-size: 17px; }
+  .chart-head .chunit { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); }
+  .chart-sub { font-family: var(--serif); font-style: italic; font-size: 12px; color: var(--ink-faint); margin-bottom: 12px; }
+  .chart-wrap { height: 200px; position: relative; }
+  .chart-legend { display: flex; gap: 16px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); margin-top: 8px; }
+  .chart-legend .lg { display: flex; align-items: center; gap: 6px; }
+  .chart-legend .lg .swatch { width: 14px; height: 2px; }
+
+  /* Pull-quote / narrative box */
+  .narrative { background: var(--bg-paper); border: 1px solid var(--hair); border-left: 3px solid var(--accent); padding: 22px 26px; margin-bottom: 28px; }
+  .narrative .nlbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .narrative ul { list-style: none; }
+  .narrative li { font-family: var(--serif); font-size: 14px; color: var(--ink); line-height: 1.55; padding: 5px 0 5px 22px; position: relative; }
+  .narrative li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 500; }
+  .narrative li em { font-style: italic; color: var(--ink-soft); }
+
+  /* ============ FOOTER NAV ============ */
+  .footnav { display: flex; justify-content: space-between; align-items: center; padding-top: 26px; border-top: 1px solid var(--hair); margin-top: 24px; }
+  .footnav .actions { display: flex; gap: 12px; }
+  .btn { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; padding: 14px 26px; cursor: pointer; transition: all 0.18s; border: 1px solid transparent; background: transparent; color: var(--ink-soft); }
+  .btn:hover { color: var(--ink); }
+  .btn.primary { background: var(--ink); color: var(--bg-paper); border-color: var(--ink); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); color: var(--bg-paper); }
+  .btn.ghost { border: 1px solid var(--rule); color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: var(--bg-paper); }
+  .btn.disabled { opacity: 0.3; pointer-events: none; }
+  .btn .arr { display: inline-block; transition: transform 0.2s; }
+  .btn:hover .arr { transform: translateX(3px); }
+  .btn.back .arr { margin-right: 6px; }
+  .btn.back:hover .arr { transform: translateX(-3px); }
+
+  /* ============ PRINT ============ */
+  /* Used by printReport() to size all canvases correctly before window.print() — */
+  /* Chart.js needs visible containers with real dimensions to draw at the right size. */
+  /* These dimensions must mirror the @media print rules below: @media print activates only at the */
+  /* PDF capture step, after Chart.js has already painted, so the canvas locks in at screen height */
+  /* unless we pre-shrink the container here. */
+  body.printing .step { display: block !important; opacity: 1 !important; transform: none !important; }
+  body.printing .timeline-chart-wrap { height: 120px; }
+  body.printing .chart-wrap { height: 160px; }
+
+  @media print {
+    @page { size: A4 portrait; margin: 10mm 12mm; }
+    body::before, .topbar .stepnav, .footnav, .rate-controls::before { display: none !important; }
+    body { background: #fff; }
+    main { padding: 10px 0 0; max-width: none; }
+
+    /* Print every chapter; new chapter starts on a fresh page. */
+    .step { display: block !important; opacity: 1 !important; transform: none !important; page-break-inside: auto; }
+    .step[data-step="2"], .step[data-step="3"] { page-break-before: always; }
+
+    /* Keep individual cards together. Timeline-cards intentionally allowed to break — */
+    /* otherwise the second chart gets bumped to its own near-empty page. */
+    .masthead, .phase, .kpi-row, .strat, .chart-card, .narrative { page-break-inside: avoid; }
+    .strat-row, .charts-row { page-break-inside: avoid; }
+    .timeline-card { page-break-inside: auto; }
+
+    /* ----- Compact print typography ----- */
+    .topbar { padding: 8px 0 6px; border-bottom: 1px solid #333; }
+    .brand .mark { font-size: 9px; }
+    .brand .name { font-size: 17px; margin-top: 3px; }
+    .brand .sub { font-size: 10px; }
+
+    .masthead { padding-bottom: 10px; margin-bottom: 14px; gap: 22px; }
+    .masthead .num { font-size: 46px; }
+    .masthead .meta { padding-top: 8px; }
+    .masthead .kicker { margin-bottom: 4px; }
+    .masthead .title { font-size: 22px; }
+    .masthead .lede { font-size: 11.5px; margin-top: 5px; max-width: none; }
+
+    .section { margin-bottom: 14px; }
+    .section-lbl { margin-bottom: 12px; }
+
+    /* Form fields (Step 1) */
+    .field-grid { gap: 12px 26px; }
+    .field { gap: 4px; }
+    .label { font-size: 9.5px; letter-spacing: 0.14em; }
+    .help { font-size: 10.5px; }
+    .inp-line { padding: 4px 0 5px; }
+    .inp-line .pre { font-size: 16px; }
+    .inp-line input { font-size: 22px; }
+    .radio-row label { padding: 6px 16px; font-size: 11px; }
+    .preset-row { gap: 10px; }
+    .preset { padding: 12px 14px 14px; }
+    .preset .pamt { font-size: 24px; margin-top: 6px; }
+    .preset .pdesc { font-size: 10.5px; }
+    .preset .ptier { font-size: 9px; }
+
+    /* Slider — hide thumb, keep track + value for visual reference */
+    .slider-row { padding: 4px 0 2px; }
+    .slider-track { background: #ccc; }
+    .slider-thumb { display: none; }
+    .slider-fill { opacity: 0.6; }
+    .slider-val { font-size: 18px; }
+
+    /* Phase cards (Step 2) */
+    .phase { padding: 12px 18px; margin-bottom: 8px; }
+    .phase-numlbl .ptitle { font-size: 16px; }
+    .phase-numlbl .romnum { font-size: 16px; }
+    .phase-numlbl .psub { font-size: 11px; margin-left: 8px; }
+    .phase.wait.disabled { padding: 8px 18px; }
+    .phase-body { margin-top: 12px; gap: 12px 24px; }
+
+    /* KPI rows */
+    .kpi-row { padding: 12px 0; margin-bottom: 14px; }
+    .kpi { padding: 0 16px; }
+    .kpi .klbl { margin-bottom: 8px; font-size: 9px; }
+    .kpi .kval { font-size: 22px; }
+    .kpi.primary .kval { font-size: 30px; }
+    .kpi .ksub { font-size: 10.5px; margin-top: 8px; line-height: 1.4; }
+    .kpi .ksub .zh-help { font-size: 9.5px; }
+    .kpi .zh-kpi { font-size: 9px; margin-top: 2px; }
+
+    /* Charts — clip any canvas overflow and reserve enough vertical room for axis + legend */
+    .timeline-card { padding: 14px 18px 12px; margin-bottom: 10px; }
+    .timeline-head { margin-bottom: 8px; }
+    .timeline-head .lt { font-size: 15px; }
+    .timeline-chart-wrap { height: 120px; overflow: hidden; }
+    .phase-bar { height: 13px; font-size: 8px; margin-top: 8px; }
+
+    /* Step 3 — rate controls + strategy cards */
+    .rate-controls { background: #fff; border: 1px solid #999; padding: 14px 18px; margin-bottom: 14px; gap: 18px; }
+    .rate-ctrl-head { margin-bottom: 6px; }
+    .rate-ctrl-head .rname { font-size: 13px; }
+    .rate-ctrl .slider-val { font-size: 22px; }
+
+    .strat-row { gap: 12px; margin-bottom: 14px; }
+    .strat { padding: 16px 18px; }
+    .strat-name { font-size: 19px; }
+    .strat-desc { font-size: 11px; line-height: 1.45; margin-top: 6px; }
+    .strat-divider { margin: 10px 0; }
+    .strat-row-item { padding: 6px 0; }
+    .strat-row-item .srl { font-size: 9px; }
+    .strat-row-item .srv { font-size: 17px; }
+    .strat-row-item .srv.muted { font-size: 14px; }
+    .strat-row-item .srn { font-size: 10px; }
+
+    /* Side-by-side chart cards (Step 3) — give chart enough vertical room so its */
+    /* internal axis labels don't get clipped onto the legend strip below. */
+    .charts-row { gap: 12px; margin-bottom: 14px; }
+    .chart-card { padding: 14px 16px 12px; }
+    .chart-head { margin-bottom: 4px; align-items: flex-start; }
+    .chart-head .cht { font-size: 14px; flex: 1; }
+    .chart-head .chunit { white-space: nowrap; font-size: 8.5px; padding-top: 2px; }
+    .chart-head .chunit .zh-chunit { display: block; margin-left: 0; margin-top: 1px; }
+    .chart-sub { font-size: 10.5px; margin-bottom: 8px; }
+    /* No overflow:hidden — Chart.js axis labels extend slightly below the canvas; clipping eats the bottom tick. */
+    .chart-wrap { height: 160px; }
+    /* Stack each legend item vertically (swatch + English on row 1, Chinese on row 2) — */
+    /* keeps long bilingual labels readable in narrow side-by-side print cards. */
+    .chart-legend { font-size: 8.5px; gap: 14px; margin-top: 6px; flex-wrap: wrap; }
+    .chart-legend .lg { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; line-height: 1.25; }
+    .chart-legend .lg .swatch { width: 14px; margin-bottom: 2px; }
+    .chart-legend .lg .zh-legend { font-size: 8px; margin-left: 0; }
+
+    /* Narrative */
+    .narrative { padding: 14px 18px; margin-bottom: 10px; }
+    .narrative .nlbl { margin-bottom: 8px; font-size: 9px; }
+    .narrative li { font-size: 11.5px; padding: 4px 0 4px 18px; line-height: 1.45; }
+
+    /* Bilingual size adjustments */
+    .zh-title    { font-size: 13.5px; margin-top: 6px; }
+    .zh-lede     { font-size: 10.5px; margin-top: 4px; }
+    .zh-lbl      { font-size: 9.5px; margin-top: 2px; }
+    .zh-help     { font-size: 9.5px; margin-top: 2px; line-height: 1.4; }
+    .zh-kicker   { font-size: 9px; margin-left: 6px; }
+    .zh-phase    { font-size: 10.5px; }
+    .zh-strat    { font-size: 12px; margin-top: 2px; }
+    .zh-tag      { font-size: 9px; }
+    .zh-preset   { font-size: 10px; margin-top: 3px; }
+    .zh-narr     { font-size: 10.5px; margin-top: 2px; }
+    .zh-suf, .zh-radio, .zh-step { font-size: 9.5px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark">Retirement Planner <span class="zh-brand" style="display:inline;margin-left:8px">退休规划</span></div>
+    <div class="name">A consultation by <span style="font-style:normal">Yang Yang</span></div>
+    <div class="sub">Great Eastern Financial Advisers · Singapore <span class="zh" style="color:var(--ink-faint);margin-left:6px">大东方财务顾问 · 新加坡</span></div>
+  </div>
+  <nav class="stepnav" id="stepnav">
+    <div class="s active" data-step="1"><span class="n">01</span><span class="lbl">Profile<span class="zh-step">个人信息</span></span></div>
+    <div class="div"></div>
+    <div class="s" data-step="2"><span class="n">02</span><span class="lbl">Assumptions<span class="zh-step">假设设定</span></span></div>
+    <div class="div"></div>
+    <div class="s" data-step="3"><span class="n">03</span><span class="lbl">Outlook<span class="zh-step">前景展望</span></span></div>
+  </nav>
+</header>
+
+<main>
+
+<!-- =================== STEP 1 =================== -->
+<section class="step active" data-step="1">
+  <div class="masthead">
+    <div class="num">01</div>
+    <div class="meta">
+      <div class="kicker">Chapter One<span class="zh-kicker">第一章</span></div>
+      <h1 class="title">A picture of you,<br>and the life you want.<span class="zh-title">认识您本人，与您期望的生活</span></h1>
+      <p class="lede">Tell us about today — and the retirement you'd like to plan toward. Every figure can be adjusted later.<span class="zh-lede">告诉我们您当下的情况，以及您希望规划的退休生活。所有数字稍后均可调整。</span></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-lbl"><span class="bullet"></span><span class="txt">Profile<span class="zh-lbl">个人信息</span></span><span class="rule"></span></div>
+
+    <div class="field-grid">
+      <div class="field">
+        <span class="label">Gender<span class="zh-lbl">性别</span></span>
+        <div class="radio-row" id="genderRow">
+          <label data-v="M" class="sel">Male<span class="zh-radio">男</span></label>
+          <label data-v="F">Female<span class="zh-radio">女</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Current age<span class="zh-lbl">当前年龄</span></span>
+        <div class="slider-row" data-slider="ageNow" data-min="18" data-max="80" data-step="1">
+          <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+          <div class="slider-val">40</div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Desired retirement age<span class="zh-lbl">期望退休年龄</span></span>
+        <div class="slider-row" data-slider="ageRetire" data-min="40" data-max="80" data-step="1">
+          <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+          <div class="slider-val">65</div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Years of retirement income needed<span class="zh-lbl">需要退休收入的年数</span></span>
+        <div class="slider-row" data-slider="yearsRetired" data-min="5" data-max="50" data-step="1">
+          <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+          <div class="slider-val">20</div>
+        </div>
+        <span class="help">Average life expectancy in Singapore: 82 for males, 86 for females.<span class="zh-help">新加坡平均预期寿命：男性 82 岁，女性 86 岁。</span></span>
+      </div>
+      <div class="field col-span-2">
+        <span class="label">Existing retirement savings<span class="zh-lbl">现有退休储蓄</span></span>
+        <div class="inp-line">
+          <span class="pre">S$</span>
+          <input type="text" id="inpSavings" inputmode="numeric" value="100,000">
+        </div>
+        <span class="help">All capital intended for retirement today — CPF, SRS, investments, cash reserves.<span class="zh-help">目前用于退休的全部资金 — 含公积金（CPF）、补充退休计划（SRS）、投资及现金储备。</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-lbl"><span class="bullet"></span><span class="txt">Desired Lifestyle<span class="zh-lbl">期望的生活方式</span></span><span class="rule"></span></div>
+    <p class="help" style="margin: -10px 0 18px 0; font-size: 13.5px;">The monthly expense you'd like to support — in today's value. Choose a tier as a starting point, then refine.<span class="zh-help">您希望支撑的月度开支（按今日价值）。请先选择档次作为起点，再行调整。</span></p>
+
+    <div class="preset-row" id="presetRow">
+      <div class="preset" data-v="2300"><div class="ptier">Modest<span class="zh-lbl">基础型</span></div><div class="pamt"><span class="pcur">S$</span>2,300</div><div class="pdesc">Basic comforts<span class="zh-preset">基本舒适</span></div></div>
+      <div class="preset sel" data-v="2900"><div class="ptier">Comfortable<span class="zh-lbl">舒适型</span></div><div class="pamt"><span class="pcur">S$</span>2,900</div><div class="pdesc">Settled middle-class<span class="zh-preset">中产稳定</span></div></div>
+      <div class="preset" data-v="5200"><div class="ptier">Premier<span class="zh-lbl">高端型</span></div><div class="pamt"><span class="pcur">S$</span>5,200</div><div class="pdesc">Refined lifestyle<span class="zh-preset">精致生活</span></div></div>
+    </div>
+
+    <div class="field" style="margin-top: 22px;">
+      <span class="label">Monthly expense (today's value) — refine<span class="zh-lbl">月度开支（今日价值）— 微调</span></span>
+      <div class="inp-line">
+        <span class="pre">S$</span>
+        <input type="text" id="inpMonthly" inputmode="numeric" value="2,900">
+        <span class="suf">per month<span class="zh-suf">每月</span></span>
+      </div>
+      <span class="help">Selecting a tier auto-fills this; you may edit freely.<span class="zh-help">选择档次将自动填入数额；您可自由修改。</span></span>
+    </div>
+  </div>
+
+  <div class="footnav">
+    <button class="btn back disabled"><span class="arr">←</span>Back<span class="zh-btn">返回</span></button>
+    <div class="actions">
+      <button class="btn primary" onclick="goStep(2)">Continue to Assumptions <span class="arr">→</span><span class="zh-btn">继续：假设设定</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== STEP 2 =================== -->
+<section class="step" data-step="2">
+  <div class="masthead">
+    <div class="num">02</div>
+    <div class="meta">
+      <div class="kicker">Chapter Two<span class="zh-kicker">第二章</span></div>
+      <h1 class="title">The assumptions,<br>and what they yield.<span class="zh-title">假设条件，及其推导结果</span></h1>
+      <p class="lede">Three phases — accumulation, optional wait, decumulation — feed directly into the capital target and the savings cadence required. Adjust either; observe both immediately below.<span class="zh-lede">三个阶段 — 积累、可选等待、提取 — 直接决定所需的资本目标与储蓄节奏。调整任一项，下方即可同步观察结果。</span></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-lbl"><span class="bullet"></span><span class="txt">Three-Phase Model<span class="zh-lbl">三阶段模型</span></span><span class="rule"></span></div>
+
+    <!-- PRE-RETIREMENT -->
+    <div class="phase pre">
+      <div class="phase-head">
+        <div class="phase-numlbl">
+          <span class="romnum">I.</span>
+          <span class="ptitle">Pre-Retirement<span class="zh-phase">退休前</span></span>
+          <span class="psub">— contribution years<span class="zh-phase">· 供款年期</span></span>
+        </div>
+      </div>
+      <div class="phase-body">
+        <div class="field">
+          <span class="label">Investment return<span class="zh-lbl">投资回报率</span></span>
+          <div class="slider-row" data-slider="rPre" data-min="0" data-max="15" data-step="0.1" data-suffix="%">
+            <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+            <div class="slider-val">6.0%</div>
+          </div>
+          <span class="help">Expected annualised return on the accumulation portfolio.<span class="zh-help">积累阶段投资组合的预期年化回报率。</span></span>
+        </div>
+        <div class="field">
+          <span class="label">Inflation<span class="zh-lbl">通货膨胀率</span></span>
+          <div class="slider-row" data-slider="iPre" data-min="0" data-max="10" data-step="0.1" data-suffix="%">
+            <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+            <div class="slider-val">2.5%</div>
+          </div>
+          <span class="help">Annual escalation of the monthly-expense target.<span class="zh-help">月度开支目标的年度增长率。</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- WAITING PERIOD -->
+    <div class="phase wait disabled" id="phaseWait">
+      <div class="phase-head">
+        <div class="phase-numlbl">
+          <span class="romnum">II.</span>
+          <span class="ptitle">Waiting Period<span class="zh-phase">等待期</span></span>
+          <span class="psub" id="waitSub">— disabled<span class="zh-phase">· 未启用</span></span>
+        </div>
+        <div class="toggle" id="waitToggle">
+          <span class="sw"></span>
+          <span class="lbl">Enable<span class="zh-lbl">启用</span></span>
+        </div>
+      </div>
+      <div class="phase-body" style="grid-template-columns: 1fr;">
+        <div class="years-bar">
+          <span class="ylabel">Waiting years<span class="zh-lbl">等待年数</span></span>
+          <input class="yinp" type="text" id="inpYearsWait" value="5" inputmode="numeric">
+          <span class="yhelp">Years <strong>before retirement</strong> when contributions stop — capital remains in the pre-retirement portfolio and keeps compounding.<span class="zh-help"><strong style="font-weight:500">退休前</strong>停止供款的年数 — 资金留在退休前投资组合中持续复利增长。</span></span>
+        </div>
+        <div style="padding: 6px 14px 2px; font-family: var(--serif); font-style: italic; font-size: 12.5px; color: var(--ink-soft); line-height: 1.55;">
+          Sub-phase of Pre-Retirement — uses the <strong style="font-style:normal">Phase I</strong> return and inflation rates throughout. No separate assumptions required.
+          <span class="zh-narr">退休前阶段的子阶段 — 全程沿用<strong style="font-weight:500">第一阶段</strong>的回报率与通胀率，无需另设假设。</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST-RETIREMENT -->
+    <div class="phase post">
+      <div class="phase-head">
+        <div class="phase-numlbl">
+          <span class="romnum">III.</span>
+          <span class="ptitle">Post-Retirement<span class="zh-phase">退休后</span></span>
+          <span class="psub">— drawdown through end of plan<span class="zh-phase">· 提取至计划结束</span></span>
+        </div>
+      </div>
+      <div class="phase-body">
+        <div class="field">
+          <span class="label">Investment return<span class="zh-lbl">投资回报率</span></span>
+          <div class="slider-row" data-slider="rPost" data-min="0" data-max="15" data-step="0.1" data-suffix="%">
+            <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+            <div class="slider-val">4.0%</div>
+          </div>
+          <span class="help">A typically more conservative drawdown-phase return.<span class="zh-help">提取阶段通常采用较为保守的回报率。</span></span>
+        </div>
+        <div class="field">
+          <span class="label">Inflation<span class="zh-lbl">通货膨胀率</span></span>
+          <div class="slider-row" data-slider="iPost" data-min="0" data-max="10" data-step="0.1" data-suffix="%">
+            <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+            <div class="slider-val">2.5%</div>
+          </div>
+          <span class="help">Monthly expenses & inflation-adjusted withdrawals escalate at this rate.<span class="zh-help">月度开支及经通胀调整后的提取额按此速率增长。</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-lbl"><span class="bullet"></span><span class="txt">The Outcome · Expense Through Time<span class="zh-lbl">结果 · 开支的时间演变</span></span><span class="rule"></span></div>
+  <p class="help" style="margin:-12px 0 14px 0;font-size:13px;line-height:1.5">The cost of your client's desired lifestyle, in nominal dollars, at three milestones — illustrating how inflation reshapes the same monthly target over decades.<span class="zh-help">客户期望生活方式的成本（按名义新元），在三个时间节点上的呈现 — 说明通胀如何在数十年间重塑同一月度目标。</span></p>
+
+  <!-- KPI ROW · EXPENSE THROUGH TIME (3 cards, end-card emphasised) -->
+  <div class="kpi-row cols-3eq">
+    <div class="kpi">
+      <div class="klbl">Today's dollars<span class="zh-kpi">今日价值</span></div>
+      <div class="kval" id="kpiExpToday"><span class="kcur">S$</span>—<span class="kunit">/ mo</span></div>
+      <div class="ksub">As specified in Chapter One.<span class="zh-help">依第一章所设定。</span></div>
+    </div>
+    <div class="kpi">
+      <div class="klbl">At retirement <span id="kpiExpRetAgeWrap" style="color:var(--ink-faint);font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0">· age <span id="kpiExpRetAge">—</span></span><span class="zh-kpi">退休时</span></div>
+      <div class="kval" id="kpiExpRet"><span class="kcur">S$</span>—<span class="kunit">/ mo</span></div>
+      <div class="ksub" id="kpiExpRetSub">—</div>
+    </div>
+    <div class="kpi alert expense-end">
+      <div class="klbl">At end of plan <span style="color:var(--ink-faint);font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0">· age <span id="kpiExpEndAge">—</span></span><span class="zh-kpi">计划结束时</span></div>
+      <div class="kval" id="kpiExpEnd"><span class="kcur">S$</span>—<span class="kunit">/ mo</span></div>
+      <div class="ksub" id="kpiExpEndSub">—</div>
+    </div>
+  </div>
+
+  <div class="section-lbl"><span class="bullet"></span><span class="txt">The Outcome · Funding Gap<span class="zh-lbl">结果 · 资金缺口</span></span><span class="rule"></span></div>
+  <p class="help" style="margin:-12px 0 14px 0;font-size:13px;line-height:1.5">To sustain that expense for the full decumulation period, the capital required at the start of drawdown — and how much of it your client's existing savings already cover.<span class="zh-help">为在整个提取期内维持该开支，提取开始时所需的资本 — 以及客户现有储蓄能覆盖的部分。</span></p>
+
+  <!-- KPI ROW 1 · funding gap (3 cards) -->
+  <div class="kpi-row">
+    <div class="kpi primary">
+      <div class="klbl">Total capital requirement<span class="zh-kpi">总资本需求</span></div>
+      <div class="kval" id="kpiLumpSum"><span class="kcur">S$</span>—</div>
+      <div class="ksub" id="kpiLumpSumSub">—</div>
+    </div>
+    <div class="kpi">
+      <div class="klbl">Existing savings, projected<span class="zh-kpi">现有储蓄（预计增长后）</span></div>
+      <div class="kval" id="kpiESProjected"><span class="kcur">S$</span>—</div>
+      <div class="ksub" id="kpiESProjectedSub">—</div>
+    </div>
+    <div class="kpi alert">
+      <div class="klbl">Net shortfall<span class="zh-kpi">净缺口</span></div>
+      <div class="kval" id="kpiShortfall"><span class="kcur">S$</span>—</div>
+      <div class="ksub" id="kpiShortfallSub">—</div>
+    </div>
+  </div>
+
+  <div class="section-lbl" style="margin-top:30px"><span class="bullet"></span><span class="txt">The Outcome · Saving Plan<span class="zh-lbl">结果 · 储蓄方案</span></span><span class="rule"></span></div>
+
+  <!-- KPI ROW 2 · saving plan (2 cards) -->
+  <div class="kpi-row cols-2">
+    <div class="kpi primary">
+      <div class="klbl">Monthly investment from today<span class="zh-kpi">今起每月投资</span></div>
+      <div class="kval" id="kpiMonthly"><span class="kcur">S$</span>—</div>
+      <div class="ksub" id="kpiMonthlySub">—</div>
+    </div>
+    <div class="kpi">
+      <div class="klbl">Investment duration<span class="zh-kpi">投资期</span></div>
+      <div class="kval" id="kpiDuration">—</div>
+      <div class="ksub" id="kpiDurationSub">—</div>
+    </div>
+  </div>
+
+  <!-- ASSET TIMELINE -->
+  <div class="timeline-card">
+    <div class="timeline-head">
+      <span class="lt">Asset Balance — full journey<span class="zh-strat" style="font-size:13px;margin-top:2px">资产余额 — 完整历程</span></span>
+      <span class="rt" id="timelineUnit">in S$<span class="zh-chunit">单位：新元</span></span>
+    </div>
+    <div class="timeline-chart-wrap"><canvas id="chartTimeline"></canvas></div>
+    <div class="phase-bar" id="phaseBar">
+      <div class="b-pre" style="flex:5">Contribution<span class="zh-legend" style="color:rgba(250,245,232,0.85);margin-left:6px">供款</span></div>
+      <div class="b-wait" style="flex:1">Wait<span class="zh-legend" style="color:rgba(250,245,232,0.85);margin-left:6px">等待</span></div>
+      <div class="b-post" style="flex:5">Decumulation<span class="zh-legend" style="color:rgba(250,245,232,0.85);margin-left:6px">提取</span></div>
+    </div>
+  </div>
+
+  <!-- CASHFLOW (annual) -->
+  <div class="timeline-card" style="margin-top:16px">
+    <div class="timeline-head">
+      <span class="lt">Cashflow — investment in, expense out<span class="zh-strat" style="font-size:13px;margin-top:2px">现金流 — 投资进，开支出</span></span>
+      <span class="rt">in S$ per year<span class="zh-chunit">单位：新元 / 年</span></span>
+    </div>
+    <div class="timeline-chart-wrap"><canvas id="chartCashflow"></canvas></div>
+    <div class="phase-bar" id="phaseBarCashflow">
+      <div class="b-pre" style="flex:5">Contribution<span class="zh-legend" style="color:rgba(250,245,232,0.85);margin-left:6px">供款</span></div>
+      <div class="b-wait" style="flex:1">Wait<span class="zh-legend" style="color:rgba(250,245,232,0.85);margin-left:6px">等待</span></div>
+      <div class="b-post" style="flex:5">Decumulation<span class="zh-legend" style="color:rgba(250,245,232,0.85);margin-left:6px">提取</span></div>
+    </div>
+    <div class="chart-legend" style="margin-top:10px">
+      <span class="lg"><span class="swatch" style="background:#2C5A3D;height:10px;width:14px"></span>One-time investment<span class="zh-legend">一次性投资</span></span>
+      <span class="lg"><span class="swatch" style="background:#5A8B6E;height:10px;width:14px"></span>Recurring investment<span class="zh-legend">定期投资</span></span>
+      <span class="lg"><span class="swatch" style="background:#A03E2C;height:10px;width:14px"></span>Annual expense<span class="zh-legend">年度开支</span></span>
+    </div>
+  </div>
+
+  <div class="footnav">
+    <button class="btn back" onclick="goStep(1)"><span class="arr">←</span>Back<span class="zh-btn">返回</span></button>
+    <div class="actions">
+      <button class="btn primary" onclick="goStep(3)">Continue to Strategies <span class="arr">→</span><span class="zh-btn">继续：策略对比</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== STEP 3 =================== -->
+<section class="step" data-step="3">
+  <div class="masthead">
+    <div class="num">03</div>
+    <div class="meta">
+      <div class="kicker">Chapter Three<span class="zh-kicker">第三章</span></div>
+      <h1 class="title">Two strategies,<br>side by side.<span class="zh-title">两种策略，并列对照</span></h1>
+      <p class="lede">With the capital target in hand, two ways to put it to work. Adjust either rate and watch the trade-off — preserving the principal, or preserving purchasing power.<span class="zh-lede">已知资本目标，可有两种运用方式。调整任一速率，观察其中权衡 — 是保全本金，还是保全购买力。</span></p>
+    </div>
+  </div>
+
+  <!-- LIVE RATE CONTROLS -->
+  <div class="rate-controls">
+    <div class="rate-ctrl cp">
+      <div class="rate-ctrl-head">
+        <span class="rname"><span class="ic">a.</span>Capital Preservation — Yield rate<span class="zh-rate-desc">资本保全 — 收益率</span></span>
+      </div>
+      <div class="slider-row" data-slider="yieldCp" data-min="0" data-max="10" data-step="0.1" data-suffix="%">
+        <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+        <div class="slider-val">4.0%</div>
+      </div>
+    </div>
+    <div class="rate-ctrl cd">
+      <div class="rate-ctrl-head">
+        <span class="rname"><span class="ic">b.</span>Capital Drawdown — Initial withdrawal rate<span class="zh-rate-desc">资本提取 — 初始提取率</span></span>
+      </div>
+      <div class="slider-row" data-slider="withdrawalCd" data-min="0" data-max="10" data-step="0.1" data-suffix="%">
+        <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+        <div class="slider-val">4.0%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGY COMPARISON -->
+  <div class="strat-row">
+    <div class="strat cp">
+      <div class="strat-tag">Strategy A<span class="zh-tag">策略 A</span></div>
+      <div class="strat-name"><span class="strat-icon">α</span>Capital Preservation<span class="zh-strat">资本保全</span></div>
+      <p class="strat-desc">Draw only the yield. Principal stays intact — a legacy preserved, but income loses real value over time.<span class="zh-help" style="margin-top:6px">只提取收益，本金保持完整 — 留下传承，但收入的实际价值会随时间下降。</span></p>
+      <div class="strat-divider"></div>
+      <div class="strat-row-item">
+        <div class="srl">Level monthly income<span class="zh-lbl">固定月度收入</span></div>
+        <div class="srv" id="cpMonthly"><span class="scur">S$</span>—</div>
+        <div class="srn">Permanent, nominal — no inflation adjustment<span class="zh-help" style="margin-top:2px;font-size:11px">永久、名义值 — 不作通胀调整</span></div>
+      </div>
+      <div class="strat-row-item">
+        <div class="srl">Real value @ end of plan<span class="zh-lbl">计划结束时的实际价值</span></div>
+        <div class="srv muted" id="cpRealEnd"><span class="scur">≈ S$</span>— <span style="font-size:0.55em">today's $</span></div>
+      </div>
+      <div class="strat-row-item">
+        <div class="srl">Capital at end<span class="zh-lbl">结束时的资本</span></div>
+        <div class="srv" id="cpCapEnd"><span class="scur">S$</span>—</div>
+        <div class="srn">Fully preserved for the next generation<span class="zh-help" style="margin-top:2px;font-size:11px">完整保留传承予下一代</span></div>
+      </div>
+    </div>
+
+    <div class="strat cd">
+      <div class="strat-tag">Strategy B<span class="zh-tag">策略 B</span></div>
+      <div class="strat-name"><span class="strat-icon">β</span>Capital Drawdown<span class="zh-strat">资本提取</span></div>
+      <p class="strat-desc">Withdraw the capital itself; income rises with inflation. Purchasing power maintained — but the well runs dry.<span class="zh-help" style="margin-top:6px">动用本金本身，收入随通胀增长。购买力得以维持 — 但终有耗尽之时。</span></p>
+      <div class="strat-divider"></div>
+      <div class="strat-row-item">
+        <div class="srl">Initial monthly income<span class="zh-lbl">初始月度收入</span></div>
+        <div class="srv" id="cdMonthly"><span class="scur">S$</span>—</div>
+        <div class="srn">Matches the planning target<span class="zh-help" style="margin-top:2px;font-size:11px">与规划目标一致</span></div>
+      </div>
+      <div class="strat-row-item">
+        <div class="srl">Final monthly income<span class="zh-lbl">最终月度收入</span></div>
+        <div class="srv" id="cdMonthlyFinal"><span class="scur">S$</span>—</div>
+        <div class="srn" id="cdMonthlyFinalNote">—</div>
+      </div>
+      <div class="strat-row-item">
+        <div class="srl">Capital depleted at<span class="zh-lbl">资本耗尽时间</span></div>
+        <div class="srv" id="cdDeplete">—</div>
+        <div class="srn" id="cdDepleteNote">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-head"><span class="cht">Capital Balance — Decumulation<span class="zh-strat" style="font-size:12px;margin-top:2px">资本余额 — 提取阶段</span></span><span class="chunit">S$ over years<span class="zh-chunit">新元 / 年</span></span></div>
+      <div class="chart-sub">CP holds steady · CD declines toward depletion<span class="zh-help" style="margin-top:2px">保全策略保持稳定 · 提取策略渐趋耗尽</span></div>
+      <div class="chart-wrap"><canvas id="chartBalance"></canvas></div>
+      <div class="chart-legend">
+        <span class="lg"><span class="swatch" style="background:var(--cp)"></span>Preservation<span class="zh-legend">保全</span></span>
+        <span class="lg"><span class="swatch" style="background:var(--cd)"></span>Drawdown<span class="zh-legend">提取</span></span>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head"><span class="cht">Annual Withdrawal — Decumulation<span class="zh-strat" style="font-size:12px;margin-top:2px">年度提取额 — 提取阶段</span></span><span class="chunit">S$ over years<span class="zh-chunit">新元 / 年</span></span></div>
+      <div class="chart-sub">CP fixed in nominal terms · CD rises with inflation<span class="zh-help" style="margin-top:2px">保全策略名义值固定 · 提取策略随通胀上升</span></div>
+      <div class="chart-wrap"><canvas id="chartWithdraw"></canvas></div>
+      <div class="chart-legend">
+        <span class="lg"><span class="swatch" style="background:var(--cp)"></span>Level (CP)<span class="zh-legend">固定（保全）</span></span>
+        <span class="lg"><span class="swatch" style="background:var(--cd)"></span>Inflation-adjusted (CD)<span class="zh-legend">通胀调整（提取）</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NARRATIVE -->
+  <div class="narrative">
+    <div class="nlbl">Talking points<span class="zh-lbl">讲解要点</span></div>
+    <ul id="talkingPoints">
+      <li>Right chart, teal line: <em>"Twenty years on, your monthly income is still the same — but a cup of coffee may cost twice as much."</em><span class="zh-narr">右图青色线条：<em>"二十年后，您的月度收入依然如初 — 但一杯咖啡的价格也许已翻倍。"</em></span></li>
+      <li>Right chart, ember line: <em>"With inflation adjustment, twenty years on you'd be drawing far more — same purchasing power as today."</em><span class="zh-narr">右图朱红线条：<em>"经通胀调整后，二十年后您提取的金额会高得多 — 但购买力与今日相同。"</em></span></li>
+      <li>Left chart: <em>"The trade-off — Drawdown exhausts the principal; Preservation passes the principal on, intact."</em><span class="zh-narr">左图：<em>"权衡所在 — 提取策略耗尽本金；保全策略将本金完整传承。"</em></span></li>
+    </ul>
+  </div>
+
+  <div class="footnav">
+    <button class="btn back" onclick="goStep(2)"><span class="arr">←</span>Back<span class="zh-btn">返回</span></button>
+    <div class="actions">
+      <button class="btn ghost" onclick="goStep(2)">Revise Assumptions<span class="zh-btn">修改假设</span></button>
+      <button class="btn primary" onclick="printReport()">Print · Save as PDF<span class="zh-btn">打印 · 另存为 PDF</span></button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+'use strict';
+
+// ============ STATE ============
+const state = {
+  gender: 'M',
+  ageNow: 40,
+  ageRetire: 65,
+  yearsRetired: 20,  // gender-driven default: M=20, F=25 (Singapore life expectancy: 82M, 86F)
+  existingSavings: 100000,
+  monthlyExpenseToday: 2900,
+  rPre: 6.0,
+  iPre: 2.5,
+  waitingEnabled: false,
+  yearsWait: 5,
+  rWait: 4.0,
+  iWait: 2.5,
+  rPost: 4.0,
+  iPost: 2.5,
+  yieldCp: 4.0,
+  withdrawalCd: 4.0,
+  currentStep: 1,
+};
+
+// ============ HELPERS ============
+const fmtMoney = (n, dp = 0) => {
+  if (!isFinite(n)) return '—';
+  return Math.round(n).toLocaleString('en-SG', { maximumFractionDigits: dp });
+};
+const parseMoney = (s) => Number(String(s).replace(/[^0-9.-]/g, '')) || 0;
+const fmtPct = (n, dp = 1) => `${n.toFixed(dp)}%`;
+
+// ============ CALCULATION ============
+function calculate() {
+  const s = state;
+  const yearsPre = Math.max(0, s.ageRetire - s.ageNow);
+  // Waiting period sits BEFORE retirement (within pre-retirement span); no contributions during this time.
+  const yearsWait = s.waitingEnabled ? Math.max(0, Math.min(yearsPre, s.yearsWait)) : 0;
+  const yearsContribution = Math.max(0, yearsPre - yearsWait);
+  const ageContributionEnd = s.ageNow + yearsContribution;
+  const N = Math.max(1, s.yearsRetired);
+  const ageDecum = s.ageRetire;            // decumulation begins AT retirement (waiting ends here)
+  const ageEnd = s.ageRetire + N;
+
+  const iPre = s.iPre / 100, iPost = s.iPost / 100;
+  const rPre = s.rPre / 100, rPost = s.rPost / 100;
+  // Waiting period is part of pre-retirement — uses the same return + inflation as Phase I.
+  const rWait = rPre;
+  const iWait = iPre;
+
+  // ① Future monthly expense at retirement (= start of decumulation)
+  // Entire pre-retirement period (contribution + waiting) inflates at iPre.
+  const monthlyAtRetire = s.monthlyExpenseToday * Math.pow(1 + iPre, yearsPre);
+  const annualAtRetire = monthlyAtRetire * 12;
+  // Aliases kept for downstream code expecting old names
+  const monthlyAtDecum = monthlyAtRetire;
+  const annualAtDecum = annualAtRetire;
+
+  // ② Lump sum needed at retirement — BGN mode (growing annuity due, B_N = 0)
+  // First withdrawal occurs AT retirement; the (1 + rPost) factor converts ordinary annuity → annuity due.
+  let LS;
+  if (Math.abs(rPost - iPost) < 1e-9) {
+    LS = annualAtRetire * N;
+  } else {
+    const q = (1 + iPost) / (1 + rPost);
+    LS = annualAtRetire * (1 + rPost) * (1 - Math.pow(q, N)) / (rPost - iPost);
+  }
+
+  // ③ Monthly savings required — TVM BGN mode (annuity due)
+  // Existing savings deposited at T=0; first monthly contribution at start of month 1; last at start of month M.
+  // Each contribution earns one extra month of compounding vs END mode.
+  const ESAtContribEnd = s.existingSavings * Math.pow(1 + rPre, yearsContribution);
+  const ESAtRet = ESAtContribEnd * Math.pow(1 + rWait, yearsWait);
+  const ESProjectedAtDecum = ESAtRet;
+  const shortfall = Math.max(0, LS - ESAtRet);
+  const shortfallAtDecum = shortfall;
+  let monthlySavings = 0;
+  if (shortfall > 0 && yearsContribution > 0) {
+    const targetAtContribEnd = shortfall / Math.pow(1 + rWait, yearsWait);
+    const mPre = Math.pow(1 + rPre, 1 / 12) - 1;
+    const M = yearsContribution * 12;
+    // Annuity due (BGN) factor: ((1+m)^M − 1)/m × (1+m)
+    const annuityFactor = mPre > 0
+      ? ((Math.pow(1 + mPre, M) - 1) / mPre) * (1 + mPre)
+      : M;
+    monthlySavings = targetAtContribEnd / annuityFactor;
+  }
+
+  // ④ Capital Preservation
+  const yieldCp = s.yieldCp / 100;
+  const annualIncomeCP = LS * yieldCp;
+  const monthlyIncomeCP = annualIncomeCP / 12;
+  const realIncomeCPEnd = annualIncomeCP / Math.pow(1 + iPost, N);
+
+  // ⑤ Capital Drawdown trajectory (with floating-point tolerance for depletion)
+  const wRate = s.withdrawalCd / 100;
+  const W1 = LS * wRate;
+  const cdBalance = [];   // length N, padded with 0 after depletion
+  const cdWithdraw = [];  // length N
+  const EPS = Math.max(W1 * 0.001, 1);  // 0.1% of W1 — treats sub-tolerance balances as depleted
+  let bal = LS;
+  let depletionYear = null;  // first year within plan when balance reaches ≤ EPS
+  for (let t = 1; t <= N; t++) {
+    const Wt = W1 * Math.pow(1 + iPost, t - 1);
+    cdWithdraw.push(Wt);
+    if (depletionYear !== null) { cdBalance.push(0); continue; }
+    const newBal = (bal - Wt) * (1 + rPost);
+    if (newBal <= EPS) { depletionYear = t; cdBalance.push(0); }
+    else { bal = newBal; cdBalance.push(bal); }
+  }
+  // If never depleted within plan, project forward to find eventual depletion (for note)
+  let depletionYearEventual = depletionYear;
+  if (depletionYearEventual === null) {
+    let bal2 = bal;
+    for (let t = N + 1; t <= N + 100; t++) {
+      const Wt = W1 * Math.pow(1 + iPost, t - 1);
+      bal2 = (bal2 - Wt) * (1 + rPost);
+      if (bal2 <= EPS) { depletionYearEventual = t; break; }
+    }
+  }
+  const monthlyIncomeCDStart = W1 / 12;
+  const finalYearForFinalIncome = depletionYear ? Math.min(N, depletionYear) : N;
+  const finalAnnualIncomeCD = W1 * Math.pow(1 + iPost, finalYearForFinalIncome - 1);
+  const monthlyIncomeCDFinal = finalAnnualIncomeCD / 12;
+  const finalBalAtN = cdBalance[N - 1] || 0;
+
+  // Full asset timeline (PLANNED path — independent of Chapter 3 CD strategy)
+  // Phases: 1) contribution years (BGN mode monthly contributions + compounding),
+  //         2) waiting years before retirement (pure compounding, no contributions),
+  //         3) decumulation years (BGN mode withdrawals = planned annual expense).
+  const timeline = []; // {age, balance, phase}
+  let b = s.existingSavings;
+  timeline.push({ age: s.ageNow, balance: b, phase: 'pre' });
+  const mPreRate = Math.pow(1 + rPre, 1 / 12) - 1;
+  // Contribution phase — BGN mode (add first, grow second)
+  for (let yr = 1; yr <= yearsContribution; yr++) {
+    for (let m = 0; m < 12; m++) {
+      b = (b + monthlySavings) * (1 + mPreRate);
+    }
+    timeline.push({ age: s.ageNow + yr, balance: b, phase: 'pre' });
+  }
+  // Waiting phase (still before retirement, no contributions)
+  for (let yr = 1; yr <= yearsWait; yr++) {
+    b = b * (1 + rWait);
+    timeline.push({ age: ageContributionEnd + yr, balance: b, phase: 'wait' });
+  }
+  // Decumulation — uses PLANNED expense (cost of living), not Chapter 3 CD strategy.
+  // Capital reaches exactly 0 at end of year N by construction of LS.
+  for (let yr = 1; yr <= N; yr++) {
+    const Et = annualAtRetire * Math.pow(1 + iPost, yr - 1);
+    b = (b - Et) * (1 + rPost);
+    timeline.push({ age: ageDecum + yr, balance: Math.max(0, b), phase: 'post' });
+  }
+
+  // Cashflow (annual, by age) — contributions BGN mode, decumulation BGN mode. Expenses use PLANNED cost-of-living, NOT Chapter 3 CD strategy.
+  // At T=0 (age = ageNow), the one-time deposit AND the first BGN monthly contribution both occur; subsequent years aggregate that year's 12 monthly contributions.
+  const cashflow = { labels: [], oneTime: [], recurring: [], expense: [] };
+  for (let age = s.ageNow; age <= ageEnd; age++) {
+    cashflow.labels.push(age);
+    let one = 0, rec = 0, exp = 0;
+    if (age === s.ageNow) {
+      one = s.existingSavings;
+    }
+    // BGN mode contributions: yearsContribution years (ages ageNow..ageContributionEnd−1). Each cell aggregates the 12 monthly BGN-mode contributions made during that year.
+    if (age >= s.ageNow && age < ageContributionEnd) {
+      rec = monthlySavings * 12;
+    }
+    // BGN mode decumulation: N years starting AT ageRetire (ages ageRetire..ageRetire+N−1). First withdrawal happens AT retirement.
+    if (age >= s.ageRetire && age < s.ageRetire + N) {
+      const yr = age - s.ageRetire + 1;
+      exp = -annualAtRetire * Math.pow(1 + iPost, yr - 1);
+    }
+    cashflow.oneTime.push(one);
+    cashflow.recurring.push(rec);
+    cashflow.expense.push(exp);
+  }
+
+  return {
+    yearsPre, yearsWait, yearsContribution, ageContributionEnd, N, ageDecum, ageEnd,
+    monthlyAtDecum, annualAtDecum, monthlyAtRetire, annualAtRetire, LS,
+    monthlySavings, shortfall, shortfallAtDecum, ESAtRet, ESAtContribEnd, ESProjectedAtDecum,
+    annualIncomeCP, monthlyIncomeCP, realIncomeCPEnd,
+    W1, monthlyIncomeCDStart, monthlyIncomeCDFinal, finalYearForFinalIncome,
+    depletionYear, depletionYearEventual, finalBalAtN, cdBalance, cdWithdraw,
+    timeline, cashflow
+  };
+}
+
+// ============ ANIMATION HELPERS ============
+
+// Pulse KPI rows when values change
+function pulseKpiRows() {
+  document.querySelectorAll('.kpi-row .kpi').forEach((el, i) => {
+    el.classList.remove('kpi-updating');
+    el.offsetHeight; // reflow
+    el.style.animationDelay = (i * 0.06) + 's';
+    el.classList.add('kpi-updating');
+    el.addEventListener('animationend', () => {
+      el.classList.remove('kpi-updating');
+      el.style.animationDelay = '';
+    }, { once: true });
+  });
+}
+
+// Count-up animation for a single numeric element
+function countUp(el, targetVal, prefix = '', suffix = '') {
+  if (!isFinite(targetVal) || targetVal <= 0) return;
+  const duration = 600;
+  const start = performance.now();
+  const from = 0;
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out cubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(from + (targetVal - from) * eased);
+    el.textContent = prefix + fmtMoney(current) + suffix;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ============ RENDER ============
+let chartTimelineInst, chartBalanceInst, chartWithdrawInst, chartCashflowInst;
+
+function render() {
+  const r = calculate();
+
+  // KPI ROW · Expense through time
+  const iPreD = state.iPre / 100;
+  const iPostD = state.iPost / 100;
+  const monthlyToday = state.monthlyExpenseToday;
+  // Entire pre-retirement (contribution + waiting) inflates at iPre uniformly.
+  const monthlyAtRet = monthlyToday * Math.pow(1 + iPreD, r.yearsPre);
+  const monthlyAtEnd = monthlyAtRet * Math.pow(1 + iPostD, r.N);
+  document.getElementById('kpiExpToday').innerHTML = `<span class="kcur">S$</span>${fmtMoney(monthlyToday)}<span class="kunit">/ mo</span>`;
+  document.getElementById('kpiExpRet').innerHTML = `<span class="kcur">S$</span>${fmtMoney(monthlyAtRet)}<span class="kunit">/ mo</span>`;
+  document.getElementById('kpiExpEnd').innerHTML = `<span class="kcur">S$</span>${fmtMoney(monthlyAtEnd)}<span class="kunit">/ mo</span>`;
+  document.getElementById('kpiExpRetAge').textContent = state.ageRetire;
+  document.getElementById('kpiExpEndAge').textContent = r.ageEnd;
+  document.getElementById('kpiExpRetSub').innerHTML = `After ${r.yearsPre}y of ${fmtPct(state.iPre)} pre-retirement inflation.<span class="zh-help">经退休前 ${r.yearsPre} 年 ${fmtPct(state.iPre)} 通胀后。</span>`;
+  const multiplier = monthlyToday > 0 ? monthlyAtEnd / monthlyToday : 0;
+  document.getElementById('kpiExpEndSub').innerHTML = `${multiplier.toFixed(1)}× today — ${r.yearsPre}y @ ${fmtPct(state.iPre)} + ${r.N}y @ ${fmtPct(state.iPost)}.<span class="zh-help">较今日 ${multiplier.toFixed(1)} 倍 — ${r.yearsPre} 年 ${fmtPct(state.iPre)} + ${r.N} 年 ${fmtPct(state.iPost)}。</span>`;
+
+  // KPI ROW 1 · Funding gap
+  document.getElementById('kpiLumpSum').innerHTML = `<span class="kcur">S$</span>${fmtMoney(r.LS)}`;
+  document.getElementById('kpiLumpSumSub').innerHTML = `Capital required when drawdown begins at retirement (age ${state.ageRetire}).<span class="zh-help">退休时（${state.ageRetire} 岁）开始提取所需的资本。</span>`;
+
+  document.getElementById('kpiESProjected').innerHTML = `<span class="kcur">S$</span>${fmtMoney(r.ESProjectedAtDecum)}`;
+  document.getElementById('kpiESProjectedSub').innerHTML =
+    `S$${fmtMoney(state.existingSavings)} compounded at ${fmtPct(state.rPre)} for ${r.yearsPre} years (full pre-retirement period).<span class="zh-help">S$${fmtMoney(state.existingSavings)} 以 ${fmtPct(state.rPre)} 复利增长 ${r.yearsPre} 年（整个退休前期间）。</span>`;
+
+  if (r.shortfallAtDecum <= 0) {
+    document.getElementById('kpiShortfall').innerHTML = `<span class="kcur"></span>None`;
+    document.getElementById('kpiShortfallSub').innerHTML = 'Existing capital already covers the requirement.<span class="zh-help">现有资本已覆盖所需金额。</span>';
+  } else {
+    document.getElementById('kpiShortfall').innerHTML = `<span class="kcur">S$</span>${fmtMoney(r.shortfallAtDecum)}`;
+    document.getElementById('kpiShortfallSub').innerHTML = `The gap to be bridged by monthly investment.<span class="zh-help">需由每月投资填补的缺口。</span>`;
+  }
+
+  // KPI ROW 2 · Saving plan
+  if (r.shortfall <= 0 || r.yearsContribution <= 0) {
+    document.getElementById('kpiMonthly').innerHTML = `<span class="kcur"></span>On track`;
+    document.getElementById('kpiMonthlySub').innerHTML = 'No additional investment required.<span class="zh-help">无需额外投资。</span>';
+    document.getElementById('kpiDuration').textContent = '—';
+    document.getElementById('kpiDurationSub').textContent = '';
+  } else {
+    document.getElementById('kpiMonthly').innerHTML = `<span class="kcur">S$</span>${fmtMoney(r.monthlySavings)}`;
+    document.getElementById('kpiMonthlySub').innerHTML = `Compounding at ${fmtPct(state.rPre)} p.a. · contributions stop at age ${r.ageContributionEnd}.<span class="zh-help">以 ${fmtPct(state.rPre)} 年化复利增长 · 供款至 ${r.ageContributionEnd} 岁停止。</span>`;
+    document.getElementById('kpiDuration').innerHTML = `${r.yearsContribution} years <span style="font-size:0.4em;color:var(--ink-faint);font-family:var(--zh)">年</span>`;
+    const durSub = state.waitingEnabled
+      ? `From age ${state.ageNow} to age ${r.ageContributionEnd} (${r.yearsContribution * 12} contributions) · then ${r.yearsWait}y wait to retirement at ${state.ageRetire}.<span class="zh-help">从 ${state.ageNow} 岁至 ${r.ageContributionEnd} 岁（${r.yearsContribution * 12} 次供款）· 之后等待 ${r.yearsWait} 年至 ${state.ageRetire} 岁退休。</span>`
+      : `From age ${state.ageNow} to retirement at ${state.ageRetire} · ${r.yearsContribution * 12} monthly contributions.<span class="zh-help">从 ${state.ageNow} 岁至 ${state.ageRetire} 岁退休 · 共 ${r.yearsContribution * 12} 次月度供款。</span>`;
+    document.getElementById('kpiDurationSub').innerHTML = durSub;
+  }
+
+  // CP card
+  document.getElementById('cpMonthly').innerHTML = `<span class="scur">S$</span>${fmtMoney(r.monthlyIncomeCP)} <span style="font-size:0.5em;color:var(--ink-faint)">/ mo</span>`;
+  document.getElementById('cpRealEnd').innerHTML = `<span class="scur">≈ S$</span>${fmtMoney(r.realIncomeCPEnd / 12)} <span style="font-size:0.55em">today's $/mo</span>`;
+  document.getElementById('cpCapEnd').innerHTML = `<span class="scur">S$</span>${fmtMoney(r.LS)}`;
+
+  // CD card
+  document.getElementById('cdMonthly').innerHTML = `<span class="scur">S$</span>${fmtMoney(r.monthlyIncomeCDStart)} <span style="font-size:0.5em;color:var(--ink-faint)">/ mo</span>`;
+  document.getElementById('cdMonthlyFinal').innerHTML = `<span class="scur">S$</span>${fmtMoney(r.monthlyIncomeCDFinal)} <span style="font-size:0.5em;color:var(--ink-faint)">/ mo</span>`;
+  document.getElementById('cdMonthlyFinalNote').innerHTML = `In year ${r.finalYearForFinalIncome} of decumulation — escalating at ${fmtPct(state.iPost)}.<span class="zh-help" style="margin-top:2px;font-size:11px">提取阶段第 ${r.finalYearForFinalIncome} 年 — 按 ${fmtPct(state.iPost)} 递增。</span>`;
+
+  if (r.depletionYear) {
+    document.getElementById('cdDeplete').innerHTML = `Year ${r.depletionYear} <span style="font-size:0.5em;color:var(--ink-soft)">· age ${r.ageDecum + r.depletionYear}</span>`;
+    if (r.depletionYear === r.N) {
+      document.getElementById('cdDepleteNote').innerHTML = `Capital lasts exactly the planned span.<span class="zh-help" style="margin-top:2px;font-size:11px">资本恰好维持至计划结束。</span>`;
+    } else {
+      const diff = r.N - r.depletionYear;
+      document.getElementById('cdDepleteNote').innerHTML = `Capital exhausts ${diff} year${diff > 1 ? 's' : ''} earlier than planned.<span class="zh-help" style="margin-top:2px;font-size:11px">资本较计划提前 ${diff} 年耗尽。</span>`;
+    }
+  } else {
+    document.getElementById('cdDeplete').innerHTML = `<span class="scur">S$</span>${fmtMoney(r.finalBalAtN)} <span style="font-size:0.5em;color:var(--ink-soft)">surplus</span>`;
+    document.getElementById('cdDepleteNote').innerHTML = r.depletionYearEventual
+      ? `Would deplete in year ${r.depletionYearEventual} (${r.depletionYearEventual - r.N} year${r.depletionYearEventual - r.N > 1 ? 's' : ''} beyond plan).<span class="zh-help" style="margin-top:2px;font-size:11px">将于第 ${r.depletionYearEventual} 年耗尽（超出计划 ${r.depletionYearEventual - r.N} 年）。</span>`
+      : `Capital sustains indefinitely under these assumptions.<span class="zh-help" style="margin-top:2px;font-size:11px">在当前假设下资本可永续维持。</span>`;
+  }
+
+  // Phase bar proportions (sync both Asset Balance and Cashflow bars)
+  // Phase 1 = contribution years (NOT full pre-retirement), Phase 2 = waiting years (before retirement), Phase 3 = decumulation
+  const tCon = r.yearsContribution, tWait = r.yearsWait, tPost = r.N;
+  ['phaseBar', 'phaseBarCashflow'].forEach(id => {
+    const pb = document.getElementById(id);
+    if (!pb) return;
+    pb.children[0].style.flex = tCon;
+    pb.children[1].style.flex = tWait;
+    pb.children[2].style.flex = tPost;
+    pb.children[1].style.display = tWait > 0 ? 'flex' : 'none';
+  });
+
+  // Charts
+  renderCharts(r);
+
+  // Pulse KPI values to signal update
+  pulseKpiRows();
+}
+
+// ============ CHARTS ============
+const chartFont = { family: "'IBM Plex Mono', monospace", size: 9.5, weight: '400' };
+const chartColors = {
+  ink: '#1A1814', soft: '#6B6358', faint: '#9B9388',
+  cp: '#3D6661', cd: '#A03E2C', accent: '#6B1820',
+  pre: '#2C5A3D', preSoft: '#5A8B6E'
+};
+
+function renderCharts(r) {
+  Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+  Chart.defaults.font.size = 9.5;
+  Chart.defaults.color = chartColors.soft;
+  Chart.defaults.borderColor = 'rgba(26, 24, 20, 0.08)';
+
+  const commonOpts = {
+    responsive: true, maintainAspectRatio: false,
+    animation: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1A1814', titleColor: '#FAF5E8', bodyColor: '#FAF5E8',
+        titleFont: { family: "'IBM Plex Mono', monospace", size: 9.5, weight: '500' },
+        bodyFont: { family: "'IBM Plex Mono', monospace", size: 10.5 },
+        padding: 10, borderWidth: 0, cornerRadius: 0, displayColors: false,
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: S$${fmtMoney(ctx.raw)}`
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: chartColors.faint, maxRotation: 0, font: chartFont } },
+      y: {
+        grid: { color: 'rgba(26, 24, 20, 0.06)', drawBorder: false },
+        ticks: {
+          color: chartColors.faint, font: chartFont,
+          callback: (v) => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v
+        },
+        beginAtZero: true
+      }
+    },
+    elements: { point: { radius: 0, hoverRadius: 4, hoverBorderWidth: 1.5, hoverBorderColor: '#FAF5E8' } },
+    interaction: { mode: 'index', intersect: false }
+  };
+
+  // === TIMELINE CHART ===
+  if (chartTimelineInst) chartTimelineInst.destroy();
+  const tlLabels = r.timeline.map(p => p.age);
+  const tlData = r.timeline.map(p => p.balance);
+  chartTimelineInst = new Chart(document.getElementById('chartTimeline'), {
+    type: 'line',
+    data: {
+      labels: tlLabels,
+      datasets: [{
+        label: 'Balance', data: tlData,
+        borderColor: chartColors.accent, borderWidth: 2,
+        backgroundColor: (ctx) => {
+          const chart = ctx.chart;
+          const { ctx: c, chartArea } = chart;
+          if (!chartArea) return 'transparent';
+          const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          gradient.addColorStop(0, 'rgba(107, 24, 32, 0.18)');
+          gradient.addColorStop(1, 'rgba(107, 24, 32, 0)');
+          return gradient;
+        },
+        fill: true, tension: 0.25
+      }]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        ...commonOpts.scales,
+        x: { ...commonOpts.scales.x, ticks: { ...commonOpts.scales.x.ticks, callback: (v, i) => i % 5 === 0 ? r.timeline[i].age : '' } }
+      }
+    }
+  });
+
+  // === CASHFLOW CHART (annual, by age — accumulation in, decumulation out) ===
+  if (chartCashflowInst) chartCashflowInst.destroy();
+  const cfLabels = r.cashflow.labels;
+  chartCashflowInst = new Chart(document.getElementById('chartCashflow'), {
+    type: 'bar',
+    data: {
+      labels: cfLabels,
+      datasets: [
+        { label: 'One-time investment', data: r.cashflow.oneTime, backgroundColor: chartColors.pre, borderWidth: 0 },
+        { label: 'Recurring investment', data: r.cashflow.recurring, backgroundColor: chartColors.preSoft, borderWidth: 0 },
+        { label: 'Annual expense', data: r.cashflow.expense, backgroundColor: chartColors.cd, borderWidth: 0 }
+      ]
+    },
+    options: {
+      ...commonOpts,
+      plugins: {
+        ...commonOpts.plugins,
+        tooltip: {
+          ...commonOpts.plugins.tooltip,
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: S$${fmtMoney(Math.abs(ctx.raw))}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true, grid: { display: false },
+          ticks: { color: chartColors.faint, font: chartFont, callback: (v, i) => i % 5 === 0 ? cfLabels[i] : '' }
+        },
+        y: {
+          stacked: true,
+          grid: {
+            color: (ctx) => ctx.tick.value === 0 ? 'rgba(26,24,20,0.4)' : 'rgba(26,24,20,0.06)',
+            lineWidth: (ctx) => ctx.tick.value === 0 ? 1 : 1,
+            drawBorder: false
+          },
+          ticks: {
+            color: chartColors.faint, font: chartFont,
+            callback: (v) => {
+              const av = Math.abs(v);
+              const sign = v < 0 ? '−' : '';
+              return sign + (av >= 1e6 ? (av/1e6).toFixed(1) + 'M' : av >= 1e3 ? (av/1e3).toFixed(0) + 'k' : av);
+            }
+          }
+        }
+      },
+      elements: { bar: {} }
+    }
+  });
+
+  // === BALANCE CHART (decum) ===
+  if (chartBalanceInst) chartBalanceInst.destroy();
+  const decYears = Array.from({ length: r.N }, (_, i) => i + 1);
+  const cpBalance = decYears.map(() => r.LS);
+  const cdBal = decYears.map((y, i) => r.cdBalance[i] !== undefined ? r.cdBalance[i] : 0);
+  chartBalanceInst = new Chart(document.getElementById('chartBalance'), {
+    type: 'line',
+    data: {
+      labels: decYears.map(y => 'Y' + y),
+      datasets: [
+        { label: 'Preservation', data: cpBalance, borderColor: chartColors.cp, borderWidth: 1.8, tension: 0, fill: false },
+        { label: 'Drawdown', data: cdBal, borderColor: chartColors.cd, borderWidth: 2, tension: 0.15, fill: false }
+      ]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        ...commonOpts.scales,
+        x: { ...commonOpts.scales.x, ticks: { ...commonOpts.scales.x.ticks, callback: (v, i) => (i + 1) % 5 === 0 ? 'Y' + (i + 1) : '' } }
+      }
+    }
+  });
+
+  // === WITHDRAWAL CHART ===
+  if (chartWithdrawInst) chartWithdrawInst.destroy();
+  const cpW = decYears.map(() => r.annualIncomeCP);
+  const cdW = decYears.map((y, i) => r.cdWithdraw[i] || 0);
+  chartWithdrawInst = new Chart(document.getElementById('chartWithdraw'), {
+    type: 'line',
+    data: {
+      labels: decYears.map(y => 'Y' + y),
+      datasets: [
+        { label: 'Level', data: cpW, borderColor: chartColors.cp, borderWidth: 1.8, tension: 0, fill: false },
+        { label: 'Inflation-adjusted', data: cdW, borderColor: chartColors.cd, borderWidth: 2, tension: 0.15, fill: false }
+      ]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        ...commonOpts.scales,
+        x: { ...commonOpts.scales.x, ticks: { ...commonOpts.scales.x.ticks, callback: (v, i) => (i + 1) % 5 === 0 ? 'Y' + (i + 1) : '' } }
+      }
+    }
+  });
+}
+
+// ============ SLIDER ============
+function setupSlider(el) {
+  const key = el.dataset.slider;
+  const min = parseFloat(el.dataset.min);
+  const max = parseFloat(el.dataset.max);
+  const step = parseFloat(el.dataset.step || '1');
+  const suffix = el.dataset.suffix || '';
+  const track = el.querySelector('.slider-track');
+  const fill = el.querySelector('.slider-fill');
+  const thumb = el.querySelector('.slider-thumb');
+  const val = el.querySelector('.slider-val');
+
+  const updateUI = () => {
+    const v = state[key];
+    const pct = ((v - min) / (max - min)) * 100;
+    fill.style.width = pct + '%';
+    thumb.style.left = pct + '%';
+    val.textContent = step < 1 ? v.toFixed(1) + suffix : Math.round(v) + suffix;
+  };
+
+  const setVal = (clientX) => {
+    const rect = track.getBoundingClientRect();
+    let pct = (clientX - rect.left) / rect.width;
+    pct = Math.max(0, Math.min(1, pct));
+    let v = min + pct * (max - min);
+    v = Math.round(v / step) * step;
+    v = Math.max(min, Math.min(max, v));
+    state[key] = step < 1 ? Number(v.toFixed(1)) : Math.round(v);
+    if (key === 'ageNow' && state.ageRetire <= state.ageNow) state.ageRetire = state.ageNow + 1;
+    if (key === 'ageRetire' && state.ageRetire <= state.ageNow) state.ageRetire = state.ageNow + 1;
+    updateUI();
+    if (key === 'ageNow') {
+      document.querySelector('[data-slider="ageRetire"] .slider-val').textContent = state.ageRetire;
+      const re = document.querySelector('[data-slider="ageRetire"]');
+      const reFill = re.querySelector('.slider-fill');
+      const reThumb = re.querySelector('.slider-thumb');
+      const reMin = parseFloat(re.dataset.min), reMax = parseFloat(re.dataset.max);
+      const rePct = ((state.ageRetire - reMin) / (reMax - reMin)) * 100;
+      reFill.style.width = rePct + '%';
+      reThumb.style.left = rePct + '%';
+    }
+    if (state.currentStep === 2 || state.currentStep === 3) render();
+  };
+
+  let dragging = false;
+  const onDown = (e) => {
+    dragging = true;
+    thumb.classList.add('dragging');
+    val.classList.add('dragging');
+    setVal((e.touches ? e.touches[0] : e).clientX);
+    e.preventDefault();
+  };
+  const onMove = (e) => { if (dragging) setVal((e.touches ? e.touches[0] : e).clientX); };
+  const onUp = () => {
+    dragging = false;
+    thumb.classList.remove('dragging');
+    val.classList.remove('dragging');
+  };
+  track.addEventListener('mousedown', onDown);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+  track.addEventListener('touchstart', onDown, { passive: false });
+  document.addEventListener('touchmove', onMove, { passive: true });
+  document.addEventListener('touchend', onUp);
+  updateUI();
+}
+
+// ============ PRINT ============
+// Print all three chapters as a single report. Charts created while their containers were display:none
+// have 0×0 canvases; we must reveal every step first, force render() + resize() so Chart.js redraws
+// at the correct dimensions, only then call window.print(). afterprint restores normal screen view.
+function printReport() {
+  document.body.classList.add('printing');
+  // Two RAFs let layout settle so getBoundingClientRect returns the new container sizes.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      render();
+      [chartTimelineInst, chartCashflowInst, chartBalanceInst, chartWithdrawInst]
+        .forEach(c => { if (c) c.resize(); });
+      // Small delay so resize → redraw completes before the print snapshot is taken.
+      setTimeout(() => window.print(), 120);
+    });
+  });
+}
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('printing');
+});
+
+// ============ NAV ============
+function goStep(n) {
+  const currentEl = document.querySelector('.step.active');
+  const nextEl = document.querySelector(`.step[data-step="${n}"]`);
+  if (!nextEl || currentEl === nextEl) return;
+
+  // Animate out current step
+  if (currentEl) {
+    currentEl.classList.add('leaving');
+    currentEl.addEventListener('animationend', () => {
+      currentEl.classList.remove('active', 'leaving');
+    }, { once: true });
+  }
+
+  // Animate in next step after brief delay
+  setTimeout(() => {
+    state.currentStep = n;
+    nextEl.classList.add('active');
+
+    // Re-trigger animations by cloning animated children
+    nextEl.querySelectorAll('.masthead .num, .masthead .kicker, .masthead .title, .masthead .lede').forEach(el => {
+      el.style.animation = 'none';
+      el.offsetHeight; // reflow
+      el.style.animation = '';
+    });
+
+    document.querySelectorAll('.stepnav .s').forEach(el => {
+      const k = Number(el.dataset.step);
+      el.classList.toggle('active', k === n);
+      el.classList.toggle('done', k < n);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (n === 2 || n === 3) render();
+  }, currentEl ? 200 : 0);
+}
+
+// ============ EVENT WIRING ============
+function init() {
+  // Sliders
+  document.querySelectorAll('[data-slider]').forEach(setupSlider);
+
+  // Gender — also resets yearsRetired to the gender-appropriate default (M=20, F=25)
+  document.querySelectorAll('#genderRow label').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      document.querySelectorAll('#genderRow label').forEach(x => x.classList.remove('sel'));
+      lbl.classList.add('sel');
+      state.gender = lbl.dataset.v;
+      state.yearsRetired = state.gender === 'F' ? 25 : 20;
+      const yr = document.querySelector('[data-slider="yearsRetired"]');
+      const yrFill = yr.querySelector('.slider-fill');
+      const yrThumb = yr.querySelector('.slider-thumb');
+      const yrVal = yr.querySelector('.slider-val');
+      const yrMin = parseFloat(yr.dataset.min), yrMax = parseFloat(yr.dataset.max);
+      const yrPct = ((state.yearsRetired - yrMin) / (yrMax - yrMin)) * 100;
+      yrFill.style.width = yrPct + '%';
+      yrThumb.style.left = yrPct + '%';
+      yrVal.textContent = state.yearsRetired;
+      if (state.currentStep === 2 || state.currentStep === 3) render();
+    });
+  });
+
+  // Existing savings
+  const sav = document.getElementById('inpSavings');
+  sav.addEventListener('input', () => {
+    const v = parseMoney(sav.value);
+    state.existingSavings = v;
+  });
+  sav.addEventListener('blur', () => { sav.value = fmtMoney(state.existingSavings); });
+
+  // Monthly expense + presets
+  const mo = document.getElementById('inpMonthly');
+  mo.addEventListener('input', () => {
+    state.monthlyExpenseToday = parseMoney(mo.value);
+    document.querySelectorAll('#presetRow .preset').forEach(p =>
+      p.classList.toggle('sel', Number(p.dataset.v) === state.monthlyExpenseToday)
+    );
+  });
+  mo.addEventListener('blur', () => { mo.value = fmtMoney(state.monthlyExpenseToday); });
+  document.querySelectorAll('#presetRow .preset').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#presetRow .preset').forEach(x => x.classList.remove('sel'));
+      p.classList.add('sel');
+      state.monthlyExpenseToday = Number(p.dataset.v);
+      mo.value = fmtMoney(state.monthlyExpenseToday);
+    });
+  });
+
+  // Waiting toggle
+  const wt = document.getElementById('waitToggle');
+  const wp = document.getElementById('phaseWait');
+  const ws = document.getElementById('waitSub');
+  wt.addEventListener('click', () => {
+    state.waitingEnabled = !state.waitingEnabled;
+    wt.classList.toggle('on', state.waitingEnabled);
+    wp.classList.toggle('disabled', !state.waitingEnabled);
+    ws.innerHTML = state.waitingEnabled
+      ? `— ${state.yearsWait}y before retirement · no contributions<span class="zh-phase">· 退休前 ${state.yearsWait} 年 · 停止供款</span>`
+      : '— disabled<span class="zh-phase">· 未启用</span>';
+    if (state.currentStep === 2 || state.currentStep === 3) render();
+  });
+
+  // Waiting years input
+  const yw = document.getElementById('inpYearsWait');
+  yw.addEventListener('input', () => {
+    const v = parseInt(yw.value, 10);
+    if (!isNaN(v) && v > 0 && v < 30) {
+      state.yearsWait = v;
+      if (state.waitingEnabled) ws.innerHTML = `— ${v}y before retirement · no contributions<span class="zh-phase">· 退休前 ${v} 年 · 停止供款</span>`;
+      if (state.currentStep === 2 || state.currentStep === 3) render();
+    }
+  });
+
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // ?report=1 — headless PDF-capture mode: reveal all steps before init so Chart.js sees real canvas dimensions.
+  const reportMode = new URLSearchParams(location.search).get('report') === '1';
+  if (reportMode) document.body.classList.add('printing');
+  init();
+  if (reportMode) {
+    // Force a final chart resize after layout settles, so canvases match their print-sized containers.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      [chartTimelineInst, chartCashflowInst, chartBalanceInst, chartWithdrawInst]
+        .forEach(c => { if (c) c.resize(); });
+    }));
+  }
+});
+</script>
+</body>
+</html>

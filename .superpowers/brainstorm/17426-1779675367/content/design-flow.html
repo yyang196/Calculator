@@ -1,0 +1,99 @@
+<h2>设计 § 1 · 整体流程</h2>
+<p class="subtitle">3 步向导 · 双模式入口 · 单文件 HTML</p>
+
+<style>
+.flow { display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; }
+.step { flex: 1; min-width: 240px; background: #fff; border: 2px solid #1565c0; border-radius: 8px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.step h3 { margin: 0 0 8px 0; color: #1565c0; font-size: 15px; }
+.step .stepnum { display: inline-block; background: #1565c0; color: #fff; width: 22px; height: 22px; border-radius: 50%; text-align: center; line-height: 22px; font-size: 12px; font-weight: 700; margin-right: 6px; }
+.step ul { margin: 4px 0; padding-left: 20px; font-size: 12.5px; line-height: 1.6; }
+.step .pill { display: inline-block; background: #e3f2fd; color: #0d47a1; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin: 2px 3px 2px 0; }
+.step .pill.toggle { background: #fff3e0; color: #e65100; }
+.step .pill.mode { background: #e8f5e9; color: #1b5e20; font-weight: 600; }
+.arrow { display: flex; align-items: center; justify-content: center; color: #1565c0; font-size: 28px; min-width: 24px; }
+.mode-banner { background: linear-gradient(90deg,#e8f5e9,#fff); border-left: 5px solid #2e7d32; padding: 14px 18px; border-radius: 6px; margin-bottom: 18px; }
+.mode-banner h3 { margin: 0 0 8px 0; color: #1b5e20; }
+.mode-banner .modes { display: flex; gap: 12px; margin-top: 8px; }
+.mode-banner .mc { flex: 1; background: #fff; border: 1px solid #2e7d32; padding: 8px 12px; border-radius: 4px; font-size: 12.5px; }
+.mode-banner .mc strong { color: #1b5e20; }
+.legend { margin-top: 18px; font-size: 12px; color: #666; padding: 10px 14px; background: #fafafa; border-radius: 4px; }
+</style>
+
+<div class="mode-banner">
+  <h3>🎯 顶部 Mode 选择器（始终可见，影响 Step 1 表单）</h3>
+  <div class="modes">
+    <div class="mc"><strong>Mode A · Goal-Seeking</strong><br/>"我想退休后过 X 生活，需存多少？"<br/><span style="color:#888">前向求解，GE 风格</span></div>
+    <div class="mc"><strong>Mode B · Projection</strong><br/>"我打算这样存，能到什么水平？"<br/><span style="color:#888">投影计算，Excel 风格</span></div>
+  </div>
+</div>
+
+<div class="flow">
+  <div class="step">
+    <h3><span class="stepnum">1</span>About You & Plan</h3>
+    <p style="font-size:12px;color:#666;margin:6px 0">基础信息 + 模式相关输入</p>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">两模式共享：</p>
+    <ul>
+      <li>性别（M/F）</li>
+      <li>现年龄（滑块）</li>
+      <li>退休年龄（滑块）</li>
+      <li>退休后年限（滑块）</li>
+      <li>已有储蓄 $___</li>
+    </ul>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">Mode A 额外：</p>
+    <span class="pill mode">月开销 $___（带 3 档预设卡片）</span>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">Mode B 额外：</p>
+    <span class="pill mode">每年/每月供款 $___ × N 年</span>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="step">
+    <h3><span class="stepnum">2</span>Assumptions</h3>
+    <p style="font-size:12px;color:#666;margin:6px 0">投资回报与通胀假设</p>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">退休前：</p>
+    <span class="pill">Pre return %</span>
+    <span class="pill">Pre inflation %</span>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">可选模块：</p>
+    <span class="pill toggle">☐ 启用等待期 → 展开 Waiting return % + Waiting inflation % + Waiting 年数</span>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">退休后：</p>
+    <span class="pill">Post return %</span>
+    <span class="pill">Post inflation %</span>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="step">
+    <h3><span class="stepnum">3</span>Results</h3>
+    <p style="font-size:12px;color:#666;margin:6px 0">所需金额 + 两种策略对比</p>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">汇总卡：</p>
+    <ul>
+      <li>退休时点所需 lump sum</li>
+      <li>Mode A：每月需补存 $___<br/>Mode B：可累积到 $___（缺口/盈余）</li>
+    </ul>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">策略对比（核心）：</p>
+    <ul>
+      <li><strong>A · Capital Preservation</strong>：永久月入 $___，本金 100% 留给后代</li>
+      <li><strong>B · Capital Drawdown</strong>：首月 $___，每月增长抗通胀，本金约第 Y 年耗尽</li>
+    </ul>
+    <p style="margin:6px 0 2px 0;font-weight:600;font-size:12px">图表：</p>
+    <ul>
+      <li>资产时间轴（一根线累积 + 两种策略两根线分叉）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="legend">
+  <strong>导航：</strong> 顶部 stepper（1·2·3 圆点 + 完成态打勾）；底部「← 上一步 / 下一步 →」按钮；Step 3 提供「修改假设」快捷返回 Step 2 按钮。<br/>
+  <strong>形态：</strong> 单 HTML 文件，无后端，无外部依赖（除可能的一个图表库 CDN）。
+</div>
+
+<div class="options" style="margin-top:24px">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>整体流程 OK，继续看 § 2（Step 1 细节）</h3></div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content"><h3>需要调整，我会在终端说明</h3></div>
+  </div>
+</div>

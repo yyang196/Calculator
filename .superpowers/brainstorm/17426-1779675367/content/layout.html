@@ -1,0 +1,96 @@
+<h2>整体界面架构：哪种最适合顾问演示？</h2>
+<p class="subtitle">三种布局哲学。在客户会议中现场调参、对比情景时，哪种最顺手？</p>
+
+<style>
+.wf { background: #fafafa; border: 1px solid #d0d0d0; border-radius: 4px; padding: 14px; font-size: 11px; line-height: 1.4; color: #333; min-height: 320px; }
+.wf .topbar { background: #1565c0; color: #fff; padding: 6px 10px; border-radius: 3px; margin: -14px -14px 12px -14px; font-weight: 600; }
+.wf .box { background: #fff; border: 1px solid #ccc; padding: 8px; border-radius: 3px; margin-bottom: 8px; }
+.wf .box.input { border-left: 3px solid #2e7d32; }
+.wf .box.output { border-left: 3px solid #1565c0; background: #f5f9ff; }
+.wf .slider { height: 4px; background: linear-gradient(to right, #2e7d32 60%, #ccc 60%); border-radius: 2px; margin: 6px 0 4px 0; }
+.wf .pill { display: inline-block; background: #1565c0; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-right: 4px; }
+.wf .btn { background: #1565c0; color: #fff; padding: 8px 16px; border-radius: 4px; text-align: center; font-weight: 600; margin: 12px 0; }
+.wf .num { font-size: 18px; font-weight: 700; color: #1565c0; }
+.wf .tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.wf .tab { padding: 5px 10px; background: #e0e0e0; border-radius: 3px 3px 0 0; font-size: 10px; }
+.wf .tab.active { background: #1565c0; color: #fff; }
+.wf .row { display: flex; gap: 10px; }
+.wf .col { flex: 1; }
+.wf-label { color: #666; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.3px; }
+</style>
+
+<div class="cards">
+
+  <!-- OPTION A: Single long form (GE-style) -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="wf">
+        <div class="topbar">Retirement Calculator</div>
+        <div class="box input"><div class="wf-label">Age & retirement</div><div class="slider"></div><div class="slider"></div></div>
+        <div class="box input"><div class="wf-label">Lifestyle</div>$2,300 · $2,900 · $5,200</div>
+        <div class="box input"><div class="wf-label">Pre-retirement</div>Return: 5% · Inflation: 3%</div>
+        <div class="box input"><div class="wf-label">Post-retirement</div>Return: 3% · Inflation: 3%</div>
+        <div class="btn">CALCULATE</div>
+        <div class="box output"><div class="wf-label">You need</div><div class="num">$1,247,000</div></div>
+        <div class="box output"><div class="wf-label">Save monthly</div><div class="num">$2,180</div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · 单页长表单 + Calculate 按钮</h3>
+      <p>GE 风格延续。所有输入从上到下罗列，点 Calculate 按钮后下方显示结果。改一个数要重新点按钮。<br/><strong style="color:#888">熟悉感强、可控、但演示节奏慢</strong></p>
+    </div>
+  </div>
+
+  <!-- OPTION B: Two-pane live -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="wf">
+        <div class="topbar">Retirement Calculator · Live</div>
+        <div class="row">
+          <div class="col">
+            <div class="box input"><div class="wf-label">Age</div><div class="slider"></div></div>
+            <div class="box input"><div class="wf-label">Retirement</div><div class="slider"></div></div>
+            <div class="box input"><div class="wf-label">Pre return</div><div class="slider"></div></div>
+            <div class="box input"><div class="wf-label">Post return</div><div class="slider"></div></div>
+            <div class="box input"><div class="wf-label">Inflation pre/post</div>3% / 3%</div>
+            <div class="box input"><div class="wf-label">Existing $</div>$120,000</div>
+          </div>
+          <div class="col">
+            <div class="box output"><div class="wf-label">Lump sum needed</div><div class="num">$1,247,000</div></div>
+            <div class="box output"><div class="wf-label">Save monthly</div><div class="num">$2,180</div></div>
+            <div class="box output" style="min-height:80px"><div class="wf-label">Asset chart</div>📈📈📈</div>
+            <div class="box output"><div class="wf-label">Withdrawal strategies</div>A: Level $3.1k<br>B: Depleting $4.8k→$8.2k</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · 双栏实时联动（左输入 / 右结果）</h3>
+      <p>无 Calculate 按钮——拖动任何滑块/输入，右侧数字与图表立即重算。客户会议中能即时回答「如果晚 3 年退会怎样？」<br/><strong style="color:#1565c0">演示效果强、专业感强（推荐）</strong></p>
+    </div>
+  </div>
+
+  <!-- OPTION C: Stepped/sectioned -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="wf">
+        <div class="topbar">Retirement Planner</div>
+        <div class="tabs"><div class="tab active">1·You</div><div class="tab">2·Assumptions</div><div class="tab">3·Results</div></div>
+        <div class="box input"><div class="wf-label">Tell us about you</div><div class="slider"></div><div class="slider"></div>性别 · 年龄 · 退休年龄 · 退休年限</div>
+        <div class="box input"><div class="wf-label">Lifestyle</div><span class="pill">Modest</span><span class="pill">Comfort</span><span class="pill">Premier</span></div>
+        <div class="box input"><div class="wf-label">Existing savings</div>$ ___</div>
+        <div class="btn">NEXT →</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · 分步向导（Step 1 → 2 → 3）</h3>
+      <p>分页向导：第一页填个人信息，第二页填假设，第三页看结果。引导性强，输入压力低。<br/><strong style="color:#888">客户自助友好，但顾问演示时步骤多、来回切换不方便</strong></p>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top: 24px; padding: 14px 18px; background: #e8f5e9; border-left: 4px solid #2e7d32; border-radius: 4px;">
+  <strong>我的推荐：B · 双栏实时联动</strong> ——
+  您是顾问 + 演示场景，B 的实时联动让您在客户面前一秒切换情景（"晚退 3 年" / "回报率降 1%"），专业感和说服力远超 A 和 C。
+</div>

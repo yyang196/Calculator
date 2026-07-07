@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.greateasternlife.com)",
+      "Bash(python3)",
+      "mcp__plugin_playwright_playwright__browser_console_messages",
+      "Bash(find /Users/yyang/Documents/Claude_proj/Calculator -name \"step1.png\" 2>/dev/null; find /tmp -name \"step1.png\" -mmin -2 2>/dev/null)",
+      "Read(//private/tmp/**)",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_close",
+      "Bash(xargs -r kill)",
+      "Bash(awk '{print $5\" bytes  \"$9}')",
+      "Bash(python3 -m http.server 8765)",
+      "Bash(curl -sI http://localhost:8765/retirement.html)",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "Bash(python3 -m http.server 8765 > /tmp/calc-server3.log 2>&1 & *)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}

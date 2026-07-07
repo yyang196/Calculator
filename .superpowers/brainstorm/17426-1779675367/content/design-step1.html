@@ -1,0 +1,136 @@
+<h2>设计 § 2 · Step 1 · 个人信息与目标</h2>
+<p class="subtitle">客户基本面 + 退休生活方式选择</p>
+
+<style>
+.wf2 { background: #fff; border: 1px solid #d0d0d0; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-width: 720px; margin: 0 auto; }
+.wf2 .topbar { background: #1565c0; color: #fff; padding: 12px 18px; border-radius: 6px 6px 0 0; margin: -24px -24px 18px -24px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.stepper { display: flex; gap: 6px; }
+.stepper .dot { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.25); color: #fff; text-align: center; line-height: 26px; font-size: 12px; font-weight: 700; }
+.stepper .dot.active { background: #fff; color: #1565c0; }
+.field { margin-bottom: 16px; }
+.field-label { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; font-weight: 600; }
+.field-row { display: flex; gap: 10px; align-items: center; }
+.field-input { background: #f5f7fa; border: 1px solid #ccd; padding: 9px 12px; border-radius: 4px; flex: 1; font-size: 13px; }
+.field-slider { flex: 1; height: 6px; background: linear-gradient(to right,#1565c0 35%,#ddd 35%); border-radius: 3px; position: relative; }
+.field-slider .thumb { position: absolute; width: 18px; height: 18px; background: #1565c0; border-radius: 50%; left: 35%; top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.field-val { background: #1565c0; color: #fff; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 13px; min-width: 60px; text-align: center; }
+.gender { display: flex; gap: 8px; }
+.gender label { flex: 1; padding: 9px 0; text-align: center; border: 1px solid #ccd; border-radius: 4px; cursor: pointer; font-size: 13px; }
+.gender label.sel { background: #1565c0; color: #fff; border-color: #1565c0; }
+.preset-row { display: flex; gap: 10px; margin-bottom: 12px; }
+.preset { flex: 1; border: 2px solid #ddd; border-radius: 6px; padding: 12px 8px; text-align: center; cursor: pointer; background: #fff; }
+.preset.sel { border-color: #1565c0; background: #e3f2fd; }
+.preset .pname { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
+.preset .pamt { font-size: 16px; color: #1565c0; font-weight: 700; margin-top: 4px; }
+.preset .pdesc { font-size: 10px; color: #888; margin-top: 2px; }
+.custom-monthly { background: #fffde7; padding: 10px 14px; border-left: 4px solid #f9a825; border-radius: 4px; font-size: 12px; margin-top: 6px; }
+.help { font-size: 11px; color: #888; margin-top: 4px; font-style: italic; }
+.navbar { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #eee; }
+.navbar .btn { padding: 10px 22px; border-radius: 4px; font-weight: 600; font-size: 13px; }
+.navbar .btn.next { background: #1565c0; color: #fff; }
+.navbar .btn.back { background: #f0f0f0; color: #999; }
+.section-title { font-size: 12px; color: #1565c0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 10px 0; padding-bottom: 4px; border-bottom: 2px solid #e3f2fd; }
+</style>
+
+<div class="wf2">
+  <div class="topbar">
+    <span>Retirement Planner</span>
+    <div class="stepper">
+      <div class="dot active">1</div>
+      <div class="dot">2</div>
+      <div class="dot">3</div>
+    </div>
+  </div>
+
+  <h3 style="margin:0 0 4px 0;color:#222">About You</h3>
+  <p style="color:#888;font-size:12px;margin:0 0 18px 0">告诉我们一些基本信息，再选择您希望的退休生活方式</p>
+
+  <div class="section-title">PROFILE</div>
+
+  <div class="field">
+    <div class="field-label">Gender</div>
+    <div class="gender">
+      <label class="sel">Male</label>
+      <label>Female</label>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Current age</div>
+    <div class="field-row">
+      <div class="field-slider"><div class="thumb"></div></div>
+      <div class="field-val">35</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Desired retirement age</div>
+    <div class="field-row">
+      <div class="field-slider"><div class="thumb" style="left:65%"></div></div>
+      <div class="field-val">60</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Years of retirement income needed</div>
+    <div class="field-row">
+      <div class="field-slider"><div class="thumb" style="left:50%"></div></div>
+      <div class="field-val">25</div>
+    </div>
+    <div class="help">参考：男性平均寿命 82 岁，女性 86 岁（新加坡统计局）</div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Existing retirement savings</div>
+    <div class="field-row">
+      <div class="field-input">S$ 120,000</div>
+    </div>
+    <div class="help">含 CPF / SRS / 投资户口等所有可用于退休的资产（今日价值）</div>
+  </div>
+
+  <div class="section-title">DESIRED LIFESTYLE</div>
+
+  <p style="font-size:12.5px;color:#666;margin:0 0 10px 0">退休后您希望的每月开销（今日价值）。从下方预设中选一个起点，再微调。</p>
+
+  <div class="preset-row">
+    <div class="preset">
+      <div class="pname">Modest</div>
+      <div class="pamt">S$2,300</div>
+      <div class="pdesc">基础温饱</div>
+    </div>
+    <div class="preset sel">
+      <div class="pname">Comfortable</div>
+      <div class="pamt">S$2,900</div>
+      <div class="pdesc">舒适生活</div>
+    </div>
+    <div class="preset">
+      <div class="pname">Premier</div>
+      <div class="pamt">S$5,200</div>
+      <div class="pdesc">优质生活</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Monthly expense (today's value) — 可微调</div>
+    <div class="field-row">
+      <div class="field-input">S$ 2,900</div>
+    </div>
+    <div class="help">点击上方预设会自动填入此处；您可在此基础上修改任意金额</div>
+  </div>
+
+  <div class="navbar">
+    <div class="btn back">← Back</div>
+    <div class="btn next">Next: Assumptions →</div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:30px">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>Step 1 OK，继续看 § 3（Step 2 假设页）</h3></div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content"><h3>需要增减字段或调整顺序</h3></div>
+  </div>
+</div>

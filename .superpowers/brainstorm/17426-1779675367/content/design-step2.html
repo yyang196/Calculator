@@ -1,0 +1,160 @@
+<h2>设计 § 3 · Step 2 · 假设</h2>
+<p class="subtitle">三段费率（pre / 可选 waiting / post）+ 通胀</p>
+
+<style>
+.wf2 { background: #fff; border: 1px solid #d0d0d0; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-width: 760px; margin: 0 auto; }
+.wf2 .topbar { background: #1565c0; color: #fff; padding: 12px 18px; border-radius: 6px 6px 0 0; margin: -24px -24px 18px -24px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.stepper { display: flex; gap: 6px; }
+.stepper .dot { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.25); color: #fff; text-align: center; line-height: 26px; font-size: 12px; font-weight: 700; }
+.stepper .dot.active { background: #fff; color: #1565c0; }
+.stepper .dot.done { background: #4caf50; color: #fff; }
+
+.phase-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; background: #fff; }
+.phase-card.accent-pre { border-left: 4px solid #2e7d32; }
+.phase-card.accent-wait { border-left: 4px solid #ef6c00; background: #fff8e1; }
+.phase-card.accent-wait.disabled { opacity: 0.5; background: #f5f5f5; border-left-color: #bbb; }
+.phase-card.accent-post { border-left: 4px solid #1565c0; }
+.phase-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.phase-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.phase-title.pre { color: #2e7d32; }
+.phase-title.wait { color: #ef6c00; }
+.phase-title.post { color: #1565c0; }
+.phase-sub { font-size: 11px; color: #888; font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 8px; }
+
+.rate-row { display: flex; gap: 14px; }
+.rate-field { flex: 1; }
+.rate-field .lbl { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 5px; font-weight: 600; }
+.rate-input-wrap { display: flex; align-items: center; gap: 6px; }
+.rate-input { background: #f5f7fa; border: 1px solid #ccd; padding: 9px 12px; border-radius: 4px; flex: 1; font-size: 13px; text-align: right; }
+.rate-unit { color: #666; font-weight: 600; font-size: 13px; min-width: 14px; }
+.help { font-size: 11px; color: #888; margin-top: 5px; font-style: italic; }
+
+.toggle-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.toggle-switch { width: 38px; height: 22px; background: #1565c0; border-radius: 11px; position: relative; }
+.toggle-switch.off { background: #ccc; }
+.toggle-switch .ball { position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 2px; right: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.toggle-switch.off .ball { right: auto; left: 2px; }
+.toggle-label { font-size: 13px; font-weight: 600; color: #333; }
+.toggle-desc { font-size: 11px; color: #888; }
+
+.years-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 10px 14px; background: #fff3e0; border-radius: 4px; }
+.years-label { font-size: 12px; color: #e65100; font-weight: 600; }
+.years-input { background: #fff; border: 1px solid #ffcc80; padding: 6px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; width: 50px; text-align: center; }
+
+.navbar { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #eee; }
+.navbar .btn { padding: 10px 22px; border-radius: 4px; font-weight: 600; font-size: 13px; cursor: pointer; }
+.navbar .btn.next { background: #1565c0; color: #fff; }
+.navbar .btn.back { background: #f0f0f0; color: #555; }
+</style>
+
+<div class="wf2">
+  <div class="topbar">
+    <span>Retirement Planner</span>
+    <div class="stepper">
+      <div class="dot done">✓</div>
+      <div class="dot active">2</div>
+      <div class="dot">3</div>
+    </div>
+  </div>
+
+  <h3 style="margin:0 0 4px 0;color:#222">Assumptions</h3>
+  <p style="color:#888;font-size:12px;margin:0 0 18px 0">退休前、退休后（及可选的等待期）的投资回报与通胀假设</p>
+
+  <!-- PRE-RETIREMENT -->
+  <div class="phase-card accent-pre">
+    <div class="phase-head">
+      <div>
+        <span class="phase-title pre">① Pre-Retirement</span>
+        <span class="phase-sub">现年 → 退休年龄</span>
+      </div>
+    </div>
+    <div class="rate-row">
+      <div class="rate-field">
+        <div class="lbl">Investment return rate</div>
+        <div class="rate-input-wrap"><div class="rate-input">5.0</div><div class="rate-unit">%</div></div>
+        <div class="help">您预期的投资组合年化回报</div>
+      </div>
+      <div class="rate-field">
+        <div class="lbl">Inflation rate</div>
+        <div class="rate-input-wrap"><div class="rate-input">3.0</div><div class="rate-unit">%</div></div>
+        <div class="help">客户月开销的预期年化通胀</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAITING PERIOD (toggle on) -->
+  <div class="phase-card accent-wait">
+    <div class="phase-head">
+      <div>
+        <span class="phase-title wait">② Waiting Period</span>
+        <span class="phase-sub">退休 → 开始取款（可选）</span>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-switch"><div class="ball"></div></div>
+        <span class="toggle-label">Enabled</span>
+      </div>
+    </div>
+
+    <div class="years-row">
+      <span class="years-label">等待年数</span>
+      <div class="years-input">5</div>
+      <span style="font-size:11px;color:#888">客户退休后让本金继续滚利、暂不提取的年数</span>
+    </div>
+
+    <div class="rate-row">
+      <div class="rate-field">
+        <div class="lbl">Waiting return rate</div>
+        <div class="rate-input-wrap"><div class="rate-input">4.0</div><div class="rate-unit">%</div></div>
+        <div class="help">介于 pre/post 之间的稳健组合回报</div>
+      </div>
+      <div class="rate-field">
+        <div class="lbl">Waiting inflation rate</div>
+        <div class="rate-input-wrap"><div class="rate-input">3.0</div><div class="rate-unit">%</div></div>
+        <div class="help">等待期间月开销目标继续按此通胀</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAITING PERIOD COLLAPSED EXAMPLE -->
+  <div style="margin: 6px 0 14px 0; padding: 8px 14px; background: #f5f5f5; border-left: 4px solid #ccc; border-radius: 4px; font-size: 11px; color: #888;">
+    <em>↑ 上图为「启用等待期」时的展开形态。若 toggle 关闭，整个 ② 卡片折叠为单行："② Waiting Period · Disabled"</em>
+  </div>
+
+  <!-- POST-RETIREMENT -->
+  <div class="phase-card accent-post">
+    <div class="phase-head">
+      <div>
+        <span class="phase-title post">③ Post-Retirement</span>
+        <span class="phase-sub">开始取款 → 终老</span>
+      </div>
+    </div>
+    <div class="rate-row">
+      <div class="rate-field">
+        <div class="lbl">Investment return rate</div>
+        <div class="rate-input-wrap"><div class="rate-input">3.0</div><div class="rate-unit">%</div></div>
+        <div class="help">退休后通常更保守的组合回报（用于 Capital Drawdown 模型）</div>
+      </div>
+      <div class="rate-field">
+        <div class="lbl">Inflation rate</div>
+        <div class="rate-input-wrap"><div class="rate-input">3.0</div><div class="rate-unit">%</div></div>
+        <div class="help">退休后月开销与 drawdown 取款额每年按此通胀</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="navbar">
+    <div class="btn back">← Back</div>
+    <div class="btn next">Next: Results →</div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:30px">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content"><h3>Step 2 OK，继续看 § 4（Step 3 结果与策略对比）</h3></div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content"><h3>需要调整</h3></div>
+  </div>
+</div>
