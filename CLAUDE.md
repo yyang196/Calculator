@@ -4,11 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Single-purpose retirement planning calculator used by **Yang Yang (GEFA senior financial consultant)** in client-facing demonstrations. The deliverable is a **single self-contained HTML file** — no build, no backend, no test framework, no package manager. All logic runs in the browser.
+Retirement planning calculator used by **Yang Yang (GEFA senior financial consultant)** with clients. Two deliverables, each a **single self-contained HTML file** — no build, no backend, no test framework, no package manager. All logic runs in the browser.
+
+1. **Desktop calculator** (`retirement.html`) — used in client-facing demonstrations.
+2. **Mobile retirement wizard** (`retirement_wizard*.html`) — step-by-step pages clients open on their own phone, tablet or computer; ends with the adviser's contact card.
 
 ## File layout (what matters)
 
-- `retirement.html` — the entire app: inline `<style>`, inline JS, Chart.js v4 via CDN, Google Fonts. Edit this file directly; there is nothing else to compile.
+- `retirement.html` — the desktop calculator: inline `<style>`, inline JS, Chart.js v4 via CDN, Google Fonts. Edit this file directly; there is nothing else to compile.
+- `retirement_wizard_v2.html` — **current wizard** (redesign; system fonts, responsive: phone < 640px, tablet 640–899px, two-column ≥ 900px). Charts are hand-drawn inline SVG (no Chart.js). Profile photo and WeChat QR are embedded as base64 (`AVATAR`, `QR`), so `profile.jpg` / `wechat_qr.jpeg` are source images only.
+- `retirement_wizard.html` — wizard v1, kept for reference. Same calculation as v2.
+- `deploy/index.html` — copy of `retirement_wizard_v2.html` that is uploaded to Cloudflare Pages (https://retirement-planner-sg.pages.dev). Refresh the copy and redeploy after changing v2; the copy does not update itself.
+- `design-demos/` — design directions and spec for the wizard v2 redesign (historical reference).
 - `docs/superpowers/specs/2026-05-25-retirement-calculator-design.md` — **authoritative design spec.** Contains the full calculation model (§7), KPI verification numbers (§10.4), and TVM mode invariants (§10.5). Update this whenever behavior changes.
 - `Proposal_retire_invest.xlsx` — Excel reference (`UT-FI-10` worksheet) used to validate the Capital Drawdown recursion. Do not modify.
 - `step*.png` — UI iteration screenshots (historical reference only).
