@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>六个候选 · 缩略图</title>
+<style>*{box-sizing:border-box}
+body{margin:0;background:#e9e9e6;font-family:"PingFang SC","Hiragino Sans GB","Noto Sans SC",sans-serif;color:#222;padding:32px}
+h1{font-size:20px;margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(3,480px);gap:24px}
+.cell{width:480px}.cap{font-size:14px;margin-top:8px;color:#444}.cap b{color:#111}
+.t{width:480px;height:300px;border-radius:14px;overflow:hidden;position:relative}
+/* A */
+.a{background:#FBFBF9;color:#1F2A33;padding:22px}
+.a .q{font-size:20px;font-weight:600}.a .dots{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;width:300px;margin-top:16px}
+.a .dots i{display:block;border-radius:50%;justify-self:center;align-self:center}
+.a .k{position:absolute;right:22px;top:70px;font-size:13px;line-height:1.7;color:#55606a;width:120px}
+/* B */
+.b{background:#F3F1EC;color:#1E1E1C;font-family:"Songti SC","STSong","Noto Serif SC",serif;display:flex}
+.b .v{writing-mode:vertical-rl;letter-spacing:.3em;font-size:16px;border-right:1px solid #1E1E1C;padding:22px 12px}
+.b .m{padding:26px}.b .n{font-size:58px;line-height:1}.b .s{font-size:15px;margin-top:6px}
+.b .seal{position:absolute;right:26px;bottom:26px;width:40px;height:40px;background:#B5332A;color:#fff;font-size:13px;display:grid;place-items:center;border-radius:4px}
+.b .row{font-size:15px;margin-top:14px;border-bottom:1px dotted #888;width:330px;display:flex;justify-content:space-between}
+/* C */
+.c{background:#0F4C5C;color:#fff;font-family:ui-rounded,"PingFang SC",sans-serif}
+.c .top{padding:22px}.c .n{font-size:46px;font-weight:800;letter-spacing:-1px}.c .pill{display:inline-block;background:#FFC94D;color:#0F4C5C;border-radius:99px;padding:6px 14px;font-size:13px;font-weight:700;margin-right:6px}
+.c .drawer{position:absolute;left:0;right:0;bottom:0;height:120px;background:#fff;border-radius:28px 28px 0 0;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.c .jar{border-radius:20px;padding:10px 14px;color:#0F4C5C;font-size:13px}.c .jar b{display:block;font-size:20px}
+/* D */
+.d{background:#fff;color:#1D1D1F;padding:24px}.d h3{font-size:26px;margin:0 0 12px}
+.d .li{display:flex;gap:12px;align-items:center;font-size:16px;padding:10px 0 10px;border-bottom:1px solid #eee;margin-left:0}
+.d .cb{width:18px;height:18px;border:2px solid #3478F6;border-radius:6px}.d .cb.on{background:#3478F6}
+/* E */
+.e{background:#D4FF3F;color:#1B1330;font-family:ui-rounded,"PingFang SC",sans-serif;padding:24px}
+.e .tube{position:absolute;right:60px;top:28px;width:70px;height:240px;border-radius:40px;background:#f6ffd8;box-shadow:inset 0 4px 10px rgba(0,0,0,.15),0 8px 0 #9bbf1a}
+.e .fill{position:absolute;bottom:8px;left:8px;right:8px;height:38%;border-radius:30px;background:radial-gradient(circle at 30% 20%,#ff9a6a,#FF7A2D)}
+.e .n{font-size:54px;font-weight:900;margin-top:40px}.e .btn{display:inline-block;margin-top:18px;background:#1B1330;color:#D4FF3F;border-radius:16px;padding:12px 20px;font-weight:800;box-shadow:0 6px 0 #000}
+/* F */
+.f{background:#C9CBB4;font-family:"Songti SC","STSong",serif;color:#1d1d1b}
+.f .frame{position:absolute;inset:14px;border:3px double #1d1d1b}
+.f .slip{position:absolute;left:60px;top:40px;width:56px;height:180px;background:#F7F4EA;border:1px solid #1d1d1b;writing-mode:vertical-rl;font-size:22px;display:grid;place-items:center;letter-spacing:.2em}
+.f svg{position:absolute;right:40px;bottom:30px}
+</style></head><body>
+<h1>六个候选（每格是该方向最关键的一屏片段）</h1>
+<div class="grid">
+<div class="cell"><div class="t a"><div class="q">您的 46 年，一年一个点</div>
+<div class="dots" id="dots"></div>
+<div class="k">● 大小 = 当年资产<br><span style="color:#2F7D6B">●</span> 每月投资期<br><span style="color:#E0694A">●</span> 退休提取期</div></div>
+<div class="cap"><b>A · 最佳设计师｜Giorgia Lupi</b> 人生点阵 → 选做完整版</div></div>
+
+<div class="cell"><div class="t b"><div class="v">卷三 · 结果</div><div class="m"><div class="s">退休那天，需准备</div><div class="n">1,127,947</div><div class="s">新元</div>
+<div class="row"><span>退休时每月开支</span><span>S$5,376</span></div><div class="row"><span>今起每月投资</span><span>S$1,028</span></div></div><div class="seal">规划</div></div>
+<div class="cap"><b>B · 最佳设计师｜吕敬人</b> 退休规划书 → 选做完整版</div></div>
+
+<div class="cell"><div class="t c"><div class="top"><div style="font-size:15px;opacity:.85">退休那天，您需要</div><div class="n">S$1,127,947</div><span class="pill">修改假设</span><span class="pill" style="background:#ffffff22;color:#fff">分享</span></div>
+<div class="drawer"><div class="jar" style="background:#C8F0CE">已有储蓄届时<b>S$429,187</b></div><div class="jar" style="background:#FFE3A3">还差<b>S$698,760</b></div></div></div>
+<div class="cap"><b>C · 现实参照｜Monzo 友好金融</b> 色区 + 抽屉 → 选做完整版</div></div>
+
+<div class="cell"><div class="t d"><h3>退休规划</h3><div class="li"><span class="cb on"></span>性别：男</div><div class="li"><span class="cb on"></span>当前 40 岁，65 岁退休</div><div class="li"><span class="cb on"></span>现有储蓄 S$100,000</div><div class="li"><span class="cb"></span>期望的生活档次</div></div>
+<div class="cap"><b>D · 现实参照｜Things 3</b> 清单式 → 备选（偏模板）</div></div>
+
+<div class="cell"><div class="t e"><div style="font-weight:800">资本蓄水进度</div><div class="n">38%</div><div style="font-size:15px">现有储蓄能覆盖的部分</div><span class="btn">补足方案 ›</span><div class="tube"><div class="fill"></div></div></div>
+<div class="cap"><b>E · 轮盘｜玩味 3D 材质</b> → 备选（对谈退休偏轻佻）</div></div>
+
+<div class="cell"><div class="t f"><div class="frame"></div><div class="slip">退休规划书</div>
+<svg width="220" height="140"><circle cx="150" cy="50" r="26" fill="#B5332A"/><polygon points="0,140 70,50 120,110 160,70 220,140" fill="#2b2b28"/><polygon points="40,140 95,80 140,140" fill="#55574c"/></svg></div>
+<div class="cap"><b>F · 轮盘｜民国书衣</b> → 备选（道具化过头）</div></div>
+</div>
+<script>
+const bal=[100,119,139,160,182,206,231,257,285,315,347,381,416,454,494,536,581,629,679,733,789,849,913,981,1052,1128,1106,1081,1054,1024,991,955,915,872,825,774,719,660,596,528,454,375,290,200,103,0];
+const g=document.getElementById('dots');bal.forEach((b,i)=>{const d=document.createElement('i');const s=4+Math.sqrt(b/1128)*18;d.style.width=d.style.height=s+'px';d.style.background=i<25?'#2F7D6B':'#E0694A';if(b===0){d.style.background='none';d.style.border='1.5px solid #E0694A'}g.appendChild(d)});
+</script>
+</body></html>
