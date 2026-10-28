@@ -366,6 +366,13 @@ try {
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify({ state, ui: { lang: ui.lang, maxReached: ui.maxReached } })); } catch (e) {}
 }
+// Shared devices: wipe this browser's saved inputs (language kept) and reload at step 1
+function restart() {
+  if (!confirm(t('清空所有输入，从第 1 步重新开始？', 'Clear all inputs and start again from step 1?'))) return;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ ui: { lang: ui.lang } })); } catch (e) {}
+  history.replaceState(null, '', '#1');
+  location.reload();
+}
 
 // ============ HELPERS ============
 const fmtMoney = (n, dp = 0) => {
@@ -722,6 +729,7 @@ function build() {
     <div class="delay" id="rDelay"></div>
     <p class="quote close">${QUOTES[8][ui.lang === 'zh' ? 0 : 1]}</p>
     <button class="cta next-card" data-go="9">${t('选看：有了这笔钱，还可以怎样用？', 'Optional: what else could you do with this capital?')}</button>
+    <button class="more" data-restart>${t('清空输入，重新开始', 'Clear inputs and start again')}</button>
     ${contactBlock()}
     ${legalBlock()}
   </section>
@@ -744,6 +752,7 @@ function build() {
       <svg id="chartBal" width="100%" role="img"></svg>
       <div class="key"><span><i style="background:var(--cp)"></i>${t('A 本金保全', 'A Preserve capital')}</span><span><i style="background:var(--post)"></i>${t('B 逐步提取', 'B Draw down')}</span></div></div>
     <p class="quote close">${QUOTES[9][ui.lang === 'zh' ? 0 : 1]}</p>
+    <button class="more" data-restart>${t('清空输入，重新开始', 'Clear inputs and start again')}</button>
     ${contactBlock()}
     ${legalBlock()}
   </section>`;
@@ -791,6 +800,7 @@ function wire() {
   $('cfAll').onclick = () => { ui.cfAll = !ui.cfAll; update(); };
   document.querySelectorAll('[data-go]').forEach(el => el.onclick = () => go(Number(el.dataset.go)));
   document.querySelectorAll('[data-qrsave]').forEach(el => el.onclick = saveQR);
+  document.querySelectorAll('[data-restart]').forEach(el => el.onclick = restart);
 }
 
 // ============ NAVIGATION ============
